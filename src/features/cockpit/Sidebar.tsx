@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
                 className={`text-[10px] font-mono uppercase px-3 py-1.5 rounded-sm transition-colors ${
                   activeDivision === d.slug 
                     ? 'bg-primary/20 text-primary border border-primary/30' 
-                    : 'text-muted-foreground/60 hover:text-muted hover:bg-white/5'
+                    : 'text-muted-foreground/80 hover:text-muted hover:bg-white/5'
                 }`}
               >
                 {d.slug}
@@ -131,6 +131,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
                   key={project.id}
                   onMouseEnter={(e) => handleMouseEnter(e, project)}
                   onMouseLeave={() => setHoveredProject(null)}
+                  title={project.name}
                   className={`p-3 bg-background/50 border-l-2 cursor-pointer hover:bg-background transition-colors group relative ${
                     project.status === 'active'
                       ? 'border-primary animate-pulse-gold'

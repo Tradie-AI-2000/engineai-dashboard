@@ -159,7 +159,7 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global' }) => {
           )}
         </AnimatePresence>
         
-        <main className={`flex-1 overflow-y-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-8 bg-background/50 backdrop-blur-sm transition-all duration-500 ${isSystemPaused ? 'grayscale-[0.5] contrast-[0.8]' : ''}`}>
+        <main className={`flex-1 overflow-y-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-8 bg-background/50 backdrop-blur-sm transition-all duration-300 ${isSystemPaused ? 'grayscale-[0.5] contrast-[0.8]' : ''}`}>
         <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-primary/10 pb-6 gap-4 font-mono relative z-20">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1">

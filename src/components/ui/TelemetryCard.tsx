@@ -19,9 +19,12 @@ const TelemetryCard: React.FC<TelemetryCardProps> = ({ label, value, trend, stat
         )}
       </div>
       <div className="mt-2 flex items-baseline gap-2">
-        <p className={`text-3xl font-bold font-mono tracking-tighter truncate ${
-          status === 'critical' ? 'text-red-500' : status === 'warning' ? 'text-amber-500' : 'text-muted'
-        }`}>
+        <p 
+          title={value.toString()}
+          className={`text-3xl font-bold font-mono tracking-tighter truncate ${
+            status === 'critical' ? 'text-red-500' : status === 'warning' ? 'text-amber-500' : 'text-muted'
+          }`}
+        >
           {value}
         </p>
       </div>
