@@ -1,6 +1,6 @@
 # Story 1.2: Secure Executive Auth & Multi-tenant Isolation
 
-Status: in-progress
+Status: ready-for-dev
 
 ## Story
 
@@ -10,46 +10,49 @@ so that I can maintain total security and managerial privacy.
 
 ## Acceptance Criteria
 
-1. **Supabase project integrated** with Environment variables securely managed. [Source: architecture.md#ADR-004]
-2. **Supabase Auth implemented** with a dedicated login page following the Tech Noir aesthetic. [Source: epics.md#Story 1.2]
-3. **Multi-tenant isolation enforced** using Row Level Security (RLS) on all core tables (to be created in subsequent stories, but baseline established here). [Source: architecture.md#Data Models]
-4. **Tenant ID middleware established** to inject `tenant_id` into all Supabase queries. [Source: prd.md#NFR4]
-5. **Unauthorized access attempts result in cryptographic blocks** or explicit RLS denials.
+1. **Supabase Auth Integration:** Implement executive sign-in using Supabase Auth (Email/Password or Provider). [Source: _bmad-output/planning-artifacts/epics.md#Story 1.2]
+2. **Multi-tenant Isolation (NFR4):** Cryptographically enforced data separation using Row Level Security (RLS) on all tables (`task_ledger`, `provisioning_ledger`, etc.) based on `tenant_id`. [Source: _bmad-output/planning-artifacts/prd.md#NFR4]
+3. **Executive Permissions:** Ensure only authenticated executive users can access the global dashboard and divisional views. [Source: _bmad-output/planning-artifacts/architecture.md#RBAC Matrix]
+4. **Data Access Control:** Any attempt to access unauthorized client data or another tenant's logs results in a cryptographic block (RLS failure). [Source: _bmad-output/planning-artifacts/epics.md#Story 1.2]
+5. **Tech Noir Auth UI:** Login screen follows the visual theme (#0A0A0A base, #C4A35A accents, JetBrains Mono for inputs). [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Visual Design Foundation]
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Supabase Integration (AC: 1)**
-  - [x] Initialize Supabase client in `src/lib/supabase.ts` and `src/lib/supabase-server.ts`.
-  - [x] Create `.env.local.example` template with required keys.
-  - [x] Handle missing environment variables gracefully for build/SSR.
-- [x] **Task 2: Authentication UI (AC: 2)**
-  - [x] Create `src/app/login/page.tsx` with a high-fidelity Tech Noir login form.
-  - [x] Implement Sign-in logic using Supabase Auth (Email/Password).
-  - [x] Add "Engine Gold" focus states and error handling.
-- [x] **Task 3: Multi-tenant Middleware & Context (AC: 3, 4)**
-  - [x] Create `src/middleware.ts` to protect all routes except `/login`.
-  - [x] Implement a `TenantProvider` and `useTenant` hook in `src/features/auth/TenantContext.tsx`.
-  - [x] Wrap root layout with `TenantProvider`.
-- [x] **Task 4: Security Validation (AC: 5)**
-  - [x] Verify that unauthenticated users are redirected to `/login` via middleware.
-  - [x] Establish baseline `tenant_id` handling in `TenantContext`.
+- [ ] **Task 1: Supabase Environment Configuration (AC: 1, 2)**
+  - [ ] Initialize Supabase client in `src/lib/supabase.ts`.
+  - [ ] Define `tenant_id` handling in middleware or session context.
+- [ ] **Task 2: Database Schema & RLS (AC: 2, 4)**
+  - [ ] Apply RLS policies to `task_ledger` and `provisioning_ledger` tables.
+  - [ ] Ensure `tenant_id` is automatically populated on insert where possible (via triggers or application logic).
+  - [ ] Implement `check_tenant_access` SQL function if needed for complex RLS.
+- [ ] **Task 3: Executive Auth UI (AC: 5)**
+  - [ ] Create `src/app/login/page.tsx` with Tech Noir styling.
+  - [ ] Implement login form with "Engine Gold" (#C4A35A) pulse on submit.
+  - [ ] Ensure typography uses JetBrains Mono for technical inputs.
+- [ ] **Task 4: Authentication Middleware (AC: 3)**
+  - [ ] Implement `src/middleware.ts` to protect `/dashboard` and `/api` routes.
+  - [ ] Redirect unauthenticated users to `/login`.
+- [ ] **Task 5: Validation & Testing (AC: 4)**
+  - [ ] Verify RLS by attempting to query data with a mismatched `tenant_id` session.
+  - [ ] Ensure 403/RLS errors are handled gracefully in the UI.
 
 ## Dev Notes
 
-- **Supabase SSR:** Successfully implemented using `@supabase/ssr` for both client and server components.
-- **Multi-tenancy:** The `TenantContext` currently uses `user.id` as a placeholder for `tenant_id`, consistent with the single-executive-tenant-per-user model for Phase 1.
-- **Build Integrity:** Build-time safety added to Supabase client initialization to prevent prerendering failures when secrets are missing.
+- **Multi-tenant Isolation:** This is critical for NFR4. We must ensure that the `auth.uid()` and its associated `tenant_id` (stored in a `profiles` or `users` table) are used in every RLS policy.
+- **Middleware Integration:** Next.js 16 Middleware should handle the initial auth check and session refresh.
+- **Sealed Envelope Pattern (ADR-005):** Auth is the foundation for this. Agents will trigger workflows, but the workflow execution context (Supabase Service Role) must still respect the `tenant_id` provided in the `HandoffEnvelope`.
 
 ### Project Structure Notes
 
-- **Auth Location:** Login UI in `src/app/login/`, Context in `src/features/auth/`.
-- **Lib:** Supabase utilities in `src/lib/`.
+- **New Files:** `src/lib/supabase.ts`, `src/app/login/page.tsx`, `src/middleware.ts`.
+- **Modifications:** `supabase/migrations/` for RLS policies.
 
 ### References
 
-- [Source: architecture.md] - ADR-004: Multi-tenant Provisioning.
-- [Source: prd.md] - NFR4: Multi-Tenant Isolation.
-- [Source: ux-design-specification.md] - Tech Noir theme and Action hierarchy.
+- [Source: _bmad-output/planning-artifacts/prd.md#NFR4] - Multi-tenant Isolation requirement.
+- [Source: _bmad-output/planning-artifacts/architecture.md#ADR-005] - Sealed Envelope Pattern.
+- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Visual Design Foundation] - Tech Noir aesthetic tokens.
+- [Source: _bmad-output/planning-artifacts/epics.md#Story 1.2] - Epic 1: Story 1.2 definition.
 
 ## Dev Agent Record
 
@@ -59,22 +62,6 @@ Gemini 2.5 Flash
 
 ### Debug Log References
 
-- Build successful: 4/4 pages prerendered (/, /_not-found, /login).
-- Middleware correctly identified as Proxy in Next.js 16.
-
 ### Completion Notes List
 
-- Supabase integration completed with `@supabase/ssr`.
-- Tech Noir Login page implemented with Engine Gold accents.
-- Route protection middleware implemented.
-- TenantContext established for global executive oversight.
-
-### Review Findings
-
-- [x] [Review][Patch] Runtime Safety: Added env var guards and null user safety in middleware.ts
-- [x] [Review][Patch] Error Handling: Added try/catch to LoginPage.tsx auth logic.
-- [x] [Review][Patch] Tenant Logic: Refined TenantContext.tsx to use user_metadata.tenant_id.
-- [x] [Review][Patch] Header Injection: Implemented x-tenant-id injection in middleware.ts (AC 4).
-- [x] [Review][Patch] RLS Baseline: Created initial SQL migration for auth.users RLS (AC 3).
-
-Status: done
+### File List
