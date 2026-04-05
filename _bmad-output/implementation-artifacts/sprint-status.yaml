@@ -40,10 +40,10 @@ development_status:
   1-2-secure-executive-auth-multi-tenant-isolation: done
   1-3-the-global-pulse-monaco-layout: done
   1-4-division-routing-kpi-dashboards: review
-  1-5-the-progressive-ribbon-visualization: backlog
-  1-6-mobile-oversight-nl-query-core: backlog
+  1-5-the-progressive-ribbon-visualization: done
+  1-6-mobile-oversight-nl-query-core: done
   epic-1-retrospective: optional
-  epic-2: backlog
+  epic-2: in-progress
   2-1-the-task-ledger-handoff-envelope-schema: review
   2-2-vercel-workflows-pipeline-the-2-agent-loop: review
   2-3-audit-drill-down-agent-reasoning-logs: done
