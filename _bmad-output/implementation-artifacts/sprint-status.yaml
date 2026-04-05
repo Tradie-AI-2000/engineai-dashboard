@@ -44,9 +44,9 @@ development_status:
   1-6-mobile-oversight-nl-query-core: backlog
   epic-1-retrospective: optional
   epic-2: backlog
-  2-1-the-task-ledger-handoff-envelope-schema: backlog
-  2-2-vercel-workflows-pipeline-the-2-agent-loop: backlog
-  2-3-audit-drill-down-agent-reasoning-logs: backlog
+  2-1-the-task-ledger-handoff-envelope-schema: review
+  2-2-vercel-workflows-pipeline-the-2-agent-loop: review
+  2-3-audit-drill-down-agent-reasoning-logs: done
   2-4-the-supervisor-sre-agent-self-healing-logic: backlog
   2-5-manual-override-pause-terminate-protocol: backlog
   epic-2-retrospective: optional
