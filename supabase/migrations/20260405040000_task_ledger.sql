@@ -6,6 +6,8 @@ CREATE TABLE public.task_ledger (
   sender_role TEXT NOT NULL,
   recipient_role TEXT NOT NULL,
   task_title TEXT NOT NULL,
+  executive_rationale TEXT,
+  effects_log JSONB NOT NULL DEFAULT '[]'::jsonb,
   payload JSONB NOT NULL DEFAULT '{}'::jsonb,
   status TEXT NOT NULL DEFAULT 'pending',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

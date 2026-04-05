@@ -32,6 +32,7 @@ export const HandoffEnvelopeSchema = z.object({
   recipient_role: AgentRoleSchema,
   task_title: z.string().min(1),
   executive_rationale: z.string().optional(),
+  effects_log: z.array(z.record(z.any())).default([]),
   payload: z.record(z.any()),
   status: TaskStatusSchema.default('pending'),
   created_at: z.string().datetime().optional(),
