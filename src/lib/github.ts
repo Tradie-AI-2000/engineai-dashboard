@@ -5,6 +5,33 @@
 export const sanitizeForGit = (input: string) => 
   input.toLowerCase().replace(/[^a-z0-9._/-]/g, '-');
 
+/**
+ * createRepository (Simulated)
+ */
+export async function createRepository(repoName: string) {
+  const sanitizedRepo = sanitizeForGit(repoName);
+  console.log(`GITHUB: Initialising repository engine-ai/${sanitizedRepo}`);
+  
+  // Simulation: 95% success rate
+  if (Math.random() > 0.95) {
+    throw new Error("GitHub API Error: Rate limit exceeded during repository initialisation.");
+  }
+
+  return {
+    full_name: `engine-ai/${sanitizedRepo}`,
+    html_url: `https://github.com/engine-ai/${sanitizedRepo}`,
+    id: Math.floor(Math.random() * 1000000).toString()
+  };
+}
+
+/**
+ * deleteRepository (Simulated)
+ */
+export async function deleteRepository(repoFullName: string) {
+  console.log(`GITHUB ROLLBACK: Deleting repository ${repoFullName}`);
+  return { success: true };
+}
+
 export async function createRefactorBranch(repoName: string, projectId: string) {
   const sanitizedRepo = sanitizeForGit(repoName);
   const sanitizedId = sanitizeForGit(projectId);
