@@ -91,6 +91,15 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
         const currentLocks = p.lockedStages || [];
         const isCurrentlyLocked = currentLocks.includes(stageId);
         const nextLocks = isCurrentlyLocked ? currentLocks.filter(s => s !== stageId) : [...currentLocks, stageId];
+        
+        // Console diagnostics using NZ English
+        if (!isCurrentlyLocked) {
+          console.log(`[EXECUTIVE] Authorising Surgical Lock for ${p.name} at ${stageId} stage.`);
+          console.log(`[SYSTEM] Intervention Synchronised: Stage ${stageId} locked.`);
+        } else {
+          console.log(`[EXECUTIVE] Deauthorising Surgical Lock for ${p.name} at ${stageId} stage.`);
+        }
+
         return { ...p, lockedStages: nextLocks, status: nextLocks.length > 0 ? 'blocked' : 'active' };
       }
       return p;
@@ -188,6 +197,11 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
                         const isHotLoaded = modules.some(m => m.id === project.id);
                         return (
                           <div key={project.id} className={`border p-4 rounded-sm transition-all duration-500 relative overflow-hidden ${project.lockedStages && project.lockedStages.length > 0 ? 'border-amber-500/40 bg-amber-500/5' : 'border-primary/5 bg-background/20'}`}>
+                            {project.lockedStages && project.lockedStages.length > 0 && (
+                              <div className="absolute top-0 right-0 bg-amber-500/90 text-black px-2 py-0.5 text-[8px] font-bold uppercase tracking-widest animate-pulse z-20">
+                                HITL LOCK ACTIVE
+                              </div>
+                            )}
                             <div className="flex justify-between items-start mb-4">
                               <div className="flex flex-wrap items-center gap-3">
                                 <span className="text-[11px] font-bold text-muted uppercase tracking-tight">{project.name}</span>
@@ -198,6 +212,12 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
                             </div>
                             <ProgressiveRibbon currentStageId={project.stage} lockedStages={project.lockedStages} onToggleLock={(stageId) => handleToggleLock(project.id, stageId)} />
                             <div className="mt-4"><CodeStream isActive={isRefactoring && project.status === 'active'} /></div>
+                            
+                            {project.status === 'blocked' && (
+                              <div className="absolute inset-0 bg-amber-500/5 backdrop-blur-[1px] flex items-center justify-center z-10 pointer-events-none">
+                                <p className="text-[10px] font-mono text-amber-500/40 uppercase tracking-[0.4em] font-bold">Project Blocked: HITL Active</p>
+                              </div>
+                            )}
                           </div>
                         );
                       })

@@ -92,7 +92,7 @@ const ProgressiveRibbon: React.FC<ProgressiveRibbonProps> = ({
                     {stage.label}
                   </p>
                   {isLocked ? (
-                    <p className="text-[8px] font-mono text-amber-500/60 uppercase mt-0.5 tracking-tighter">Intervention Required</p>
+                    <p className="text-[8px] font-mono text-amber-500/60 uppercase mt-0.5 tracking-tighter">Manual Intervention Required</p>
                   ) : isActive && (
                     <p className="text-[8px] font-mono text-primary/40 uppercase mt-0.5 animate-pulse font-bold tracking-tighter">Initialising...</p>
                   )}
