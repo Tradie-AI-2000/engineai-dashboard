@@ -205,6 +205,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
           <QuickLookPortal 
             project={hoveredProject} 
             position={portalPos} 
+            onMouseEnter={() => setIsPortalHovered(true)}
+            onMouseLeave={() => {
+              setIsPortalHovered(false);
+              setHoveredProject(null);
+            }}
           />
         )}
       </AnimatePresence>

@@ -11,9 +11,16 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 interface QuickLookPortalProps {
   project: Project;
   position: { top: number; left: number };
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
-const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) => {
+const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ 
+  project, 
+  position, 
+  onMouseEnter, 
+  onMouseLeave 
+}) => {
   const artifact = project.lastArtifact;
 
   return (
@@ -22,20 +29,22 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
       animate={{ opacity: 1, scale: 1, x: 0 }}
       exit={{ opacity: 0, scale: 0.95, x: -10 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{ top: position.top, left: position.left }}
-      className="fixed z-[300] w-80 bg-[rgba(12,12,12,0.84)] backdrop-blur-xl border border-[rgba(196,163,90,0.24)] p-0 shadow-[0_24px_80px_rgba(0,0,0,0.5)] rounded-sm"
+      className="fixed z-[300] w-80 bg-card-bg backdrop-blur-2xl border border-border-gold p-0 shadow-[0_24px_80px_rgba(0,0,0,0.5)] rounded-sm"
     >
       {/* HUD-style corner accent */}
-      <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-[#C4A35A]/30" />
+      <div className="absolute top-0 right-0 w-8 h-8 border-t border-r border-primary/30" />
       
       <header className="p-4 border-b border-white/5 bg-white/[0.02]">
         <div className="flex justify-between items-start">
           <div>
-            <p className="text-[9px] font-mono text-[#C4A35A] uppercase tracking-[0.2em] mb-1">Project Oversight</p>
-            <h3 className="text-sm font-bold text-[#F2EFE8] uppercase tracking-tight truncate">{project.name}</h3>
+            <p className="text-[9px] font-mono text-primary uppercase tracking-[0.2em] mb-1">Project Oversight</p>
+            <h3 className="text-sm font-bold text-text-highlight uppercase tracking-tight truncate">{project.name}</h3>
           </div>
           <div className={`px-2 py-0.5 rounded-xs border text-[8px] font-mono uppercase ${
-            project.status === 'active' ? 'bg-[#C4A35A]/10 border-[#C4A35A]/30 text-[#C4A35A]' : 'bg-white/5 border-white/10 text-muted-foreground'
+            project.status === 'active' ? 'bg-primary/10 border-primary/30 text-primary' : 'bg-white/5 border-white/10 text-text-secondary'
           }`}>
             {project.status}
           </div>
@@ -46,17 +55,17 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
         {/* Core Stats */}
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-white/[0.02] border border-white/5 p-2 rounded-xs">
-            <p className="text-[7px] font-mono text-muted-foreground uppercase mb-1">Current Stage</p>
+            <p className="text-[7px] font-mono text-text-secondary uppercase mb-1">Current Stage</p>
             <div className="flex items-center gap-1.5">
-              <Zap size={10} className="text-[#C4A35A]" />
-              <p className="text-[9px] font-mono text-[#E8E6E1] uppercase font-bold">{project.stage}</p>
+              <Zap size={10} className="text-primary" />
+              <p className="text-[9px] font-mono text-text-primary uppercase font-bold">{project.stage}</p>
             </div>
           </div>
           <div className="bg-white/[0.02] border border-white/5 p-2 rounded-xs">
-            <p className="text-[7px] font-mono text-muted-foreground uppercase mb-1">System Health</p>
+            <p className="text-[7px] font-mono text-text-secondary uppercase mb-1">System Health</p>
             <div className="flex items-center gap-1.5">
-              <Activity size={10} className="text-[#C4A35A]" />
-              <p className="text-[9px] font-mono text-[#E8E6E1] uppercase font-bold">Optimal</p>
+              <Activity size={10} className="text-primary" />
+              <p className="text-[9px] font-mono text-text-primary uppercase font-bold">Optimal</p>
             </div>
           </div>
         </div>
@@ -64,8 +73,8 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
         {/* Artifact Content */}
         <div className="mt-4">
           <div className="flex items-center gap-2 mb-2">
-            {artifact?.type === 'code' ? <Code size={12} className="text-[#C4A35A]" /> : <FileText size={12} className="text-[#C4A35A]" />}
-            <p className="text-[9px] font-mono text-[#C4A35A]/60 uppercase tracking-widest">
+            {artifact?.type === 'code' ? <Code size={12} className="text-primary" /> : <FileText size={12} className="text-primary" />}
+            <p className="text-[9px] font-mono text-primary/60 uppercase tracking-widest">
               {artifact ? `Latest Artifact: ${artifact.filename || artifact.type}` : 'No Artifacts Available'}
             </p>
           </div>
@@ -76,7 +85,7 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
                 {artifact.type === 'code' ? (
                   <div className="font-mono text-[9px] overflow-hidden">
                     <SyntaxHighlighter
-                      language="sql"
+                      language={artifact.filename?.split('.').pop() || 'typescript'}
                       style={vscDarkPlus}
                       customStyle={{ 
                         margin: 0, 
@@ -97,7 +106,7 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
                 <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black/80 to-transparent" />
               </div>
             ) : (
-              <p className="text-[10px] font-mono text-muted-foreground/40 italic py-4 text-center">Initialising data stream...</p>
+              <p className="text-[10px] font-mono text-text-secondary/40 italic py-4 text-center">Initialising data stream...</p>
             )}
           </div>
         </div>
@@ -105,11 +114,11 @@ const QuickLookPortal: React.FC<QuickLookPortalProps> = ({ project, position }) 
 
       <footer className="p-4 pt-0 border-t border-white/5 mt-2 flex justify-between items-center bg-white/[0.01]">
         <div className="flex items-center gap-1.5 py-3">
-          <ShieldCheck size={10} className="text-[#C4A35A]/40" />
-          <span className="text-[8px] font-mono text-[#C4A35A]/30 uppercase tracking-widest">RLS Context: Secure</span>
+          <ShieldCheck size={10} className="text-primary/40" />
+          <span className="text-[8px] font-mono text-primary/30 uppercase tracking-widest">RLS Context: Secure</span>
         </div>
         
-        <button className="flex items-center gap-1.5 text-[9px] font-mono text-[#C4A35A] hover:text-[#F2EFE8] transition-colors uppercase tracking-widest group">
+        <button className="flex items-center gap-1.5 text-[9px] font-mono text-primary hover:text-text-highlight transition-colors uppercase tracking-widest group">
           Surgical Portal
           <ExternalLink size={10} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </button>
