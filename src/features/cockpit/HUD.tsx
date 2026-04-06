@@ -193,6 +193,22 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
                                 <span className="text-[11px] font-light font-mono text-white uppercase tracking-tight">{project.name}</span>
                                 {isQualityValid && <div className="flex items-center gap-1 text-[8px] font-mono text-gold bg-gold/5 px-1.5 py-0.5 border border-gold/20 rounded-full"><ShieldCheck size={10} /> Quality Verified</div>}
                                 {isHotLoaded && <div className="flex items-center gap-1 text-[8px] font-mono text-white bg-white/10 px-1.5 py-0.5 border border-white/20 rounded-full animate-pulse font-light tracking-[0.1em]"><Rocket size={10} /> Hot-Loaded</div>}
+                                {statusInfo.prUrl && (
+                                  <a 
+                                    href={statusInfo.prUrl} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className={`flex items-center gap-1 text-[8px] font-mono px-1.5 py-0.5 border rounded-full transition-all hover:bg-white/10 ${
+                                      statusInfo.prStatus === 'blocked' 
+                                        ? 'text-red-400 border-red-400/20 bg-red-400/5 animate-pulse' 
+                                        : 'text-blue-400 border-blue-400/20 bg-blue-400/5'
+                                    }`}
+                                  >
+                                    {statusInfo.prStatus === 'blocked' ? <GitBranch size={10} /> : <GitPullRequest size={10} />}
+                                    {statusInfo.prStatus === 'blocked' ? 'Conflict Detected' : 'PR Pending'}
+                                    <ExternalLink size={8} className="ml-0.5 opacity-50" />
+                                  </a>
+                                )}
                               </div>
                               <span className="text-[9px] font-mono text-secondary uppercase">{project.stage} phase</span>
                             </div>
