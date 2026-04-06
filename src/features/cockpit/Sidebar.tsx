@@ -72,16 +72,16 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
   return (
     <>
       {/* Mobile Division Strip */}
-      <div className="lg:hidden flex overflow-x-auto p-2 gap-2 bg-surface border-b border-primary/10 scrollbar-hide">
+      <div className="lg:hidden flex overflow-x-auto p-2 gap-2 bg-background border-b border-white/[0.07] scrollbar-hide">
         {Array.isArray(DIVISIONS) && DIVISIONS.map((d) => (
           <Link 
             key={`mobile-${d.slug}`}
             href={d.slug === 'global' ? '/' : `/division/${d.slug}`}
             aria-label={`Switch to ${d.name} view`}
-            className={`text-[9px] font-mono uppercase px-3 py-1 rounded-sm whitespace-nowrap transition-colors flex-shrink-0 ${
+            className={`text-[9px] font-mono uppercase px-3 py-1 rounded-full whitespace-nowrap transition-all flex-shrink-0 ${
               activeDivision === d.slug 
-                ? 'bg-primary/20 text-primary border border-primary/30' 
-                : 'text-muted-foreground/60 border border-transparent'
+                ? 'bg-gold text-black' 
+                : 'text-secondary border border-white/[0.07] hover:border-white/20'
             }`}
           >
             {d.slug}
@@ -89,19 +89,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
         ))}
       </div>
 
-      <aside className="hidden lg:flex w-64 border-r border-primary/10 bg-surface h-full flex-col">
-        <div className="p-4 border-b border-primary/10 overflow-y-auto flex-1 text-xs">
-          <p className="text-[10px] font-mono uppercase text-primary/40 tracking-[0.2em] mb-4">Division Access</p>
+      <aside className="hidden lg:flex w-64 border-r border-white/[0.07] bg-background h-full flex-col">
+        <div className="p-4 border-b border-white/[0.07] overflow-y-auto flex-1 text-xs">
+          <p className="text-[10px] font-mono uppercase text-secondary tracking-[0.1em] mb-4">Division Access</p>
           <div className="grid grid-cols-1 gap-1 mb-6">
             {Array.isArray(DIVISIONS) && DIVISIONS.map((d) => (
               <Link 
                 key={d.slug}
                 href={d.slug === 'global' ? '/' : `/division/${d.slug}`}
                 aria-label={`Switch to ${d.name} view`}
-                className={`text-[10px] font-mono uppercase px-3 py-1.5 rounded-sm transition-colors ${
+                className={`text-[10px] font-mono uppercase px-3 py-1.5 rounded-full transition-all ${
                   activeDivision === d.slug 
-                    ? 'bg-primary/20 text-primary border border-primary/30' 
-                    : 'text-muted-foreground/60 hover:text-muted hover:bg-white/5'
+                    ? 'bg-gold text-black' 
+                    : 'text-secondary border border-transparent hover:border-white/[0.07] hover:bg-white/[0.02]'
                 }`}
               >
                 {d.slug}
@@ -110,40 +110,40 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
           </div>
 
           <div className="flex flex-col gap-2 mb-6">
-            <p className="text-[10px] font-mono uppercase text-primary/40 tracking-[0.2em]">Operations</p>
+            <p className="text-[10px] font-mono uppercase text-secondary tracking-[0.1em]">Operations</p>
             <button 
               disabled={isTriggering}
               onClick={initiateLoop}
-              className="w-full bg-primary/5 border border-primary/20 text-[10px] font-mono text-primary px-3 py-2 hover:bg-primary/10 transition-colors uppercase text-left flex justify-between items-center group disabled:opacity-50"
+              className="w-full bg-gold border border-gold/30 text-[10px] font-sans font-semibold text-black px-3 py-2 hover:brightness-110 transition-all uppercase text-left flex justify-between items-center group disabled:opacity-30 rounded-full tracking-[0.08em]"
             >
               <span>{isTriggering ? 'Initialising...' : 'Initiate Handoff Loop'}</span>
               <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
             </button>
           </div>
 
-          <p className="text-[10px] font-mono uppercase text-primary/40 tracking-[0.2em] mb-4">Project Portfolio</p>
+          <p className="text-[10px] font-mono uppercase text-secondary tracking-[0.1em] mb-4">Project Portfolio</p>
           <div className="space-y-2">
             {!filteredProjects || filteredProjects.length === 0 ? (
-              <p className="text-[10px] font-mono text-muted-foreground/40 uppercase p-3">No active projects</p>
+              <p className="text-[10px] font-mono text-secondary/40 uppercase p-3">No active projects</p>
             ) : (
               filteredProjects.map((project) => (
                 <div
                   key={project.id}
                   onMouseEnter={(e) => handleMouseEnter(e, project)}
                   onMouseLeave={() => setHoveredProject(null)}
-                  className={`p-3 bg-background/50 border-l-2 cursor-pointer hover:bg-background transition-colors group relative ${
+                  className={`p-3 bg-white/[0.02] border-l-2 cursor-pointer transition-all group relative rounded-r-lg ${
                     project.status === 'active'
-                      ? 'border-primary animate-pulse-gold'
+                      ? 'border-gold gold-glow'
                       : project.status === 'blocked'
-                      ? 'border-red-500'
+                      ? 'border-red-500/50'
                       : 'border-transparent'
-                  }`}
+                  } hover:bg-white/[0.05]`}
                 >
-                  <p className="text-xs font-bold text-muted group-hover:text-primary transition-colors truncate">{project.name}</p>
+                  <p className="text-xs font-mono font-light text-white uppercase truncate">{project.name}</p>
                   <div className="flex justify-between items-center mt-1">
-                    <p className="text-[10px] font-mono text-muted-foreground uppercase">{project.stage}</p>
+                    <p className="text-[10px] font-mono text-secondary uppercase">{project.stage}</p>
                     <div className={`w-1 h-1 rounded-full ${
-                      project.status === 'active' ? 'bg-primary' : project.status === 'blocked' ? 'bg-red-500' : 'bg-muted-foreground/20'
+                      project.status === 'active' ? 'bg-gold animate-pulse' : project.status === 'blocked' ? 'bg-red-500' : 'bg-secondary'
                     }`} />
                   </div>
                 </div>
@@ -152,7 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
           </div>
         </div>
         
-        <div className="p-4 border-t border-primary/10 mt-auto">
+        <div className="p-4 border-t border-white/[0.07] mt-auto">
           <form 
             onSubmit={(e) => {
               e.preventDefault();
@@ -165,24 +165,24 @@ const Sidebar: React.FC<SidebarProps> = ({ activeDivision = 'global' }) => {
             }}
             className="relative group mb-4 hidden lg:block"
           >
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-secondary/40">
               <span className="text-[10px] font-mono">$</span>
             </div>
             <input
               name="command"
               type="text"
               placeholder="COMMAND..."
-              className="w-full bg-background/40 border border-primary/10 p-2 pl-7 text-muted focus:border-primary/40 outline-none transition-colors font-mono text-[9px] uppercase tracking-wider"
+              className="w-full bg-white/[0.02] border border-white/[0.07] p-2 pl-7 text-white focus:border-gold/40 focus:ring-1 focus:ring-gold/20 outline-none transition-all font-mono text-[9px] uppercase tracking-[0.1em] rounded-full"
             />
           </form>
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <span className="text-[10px] font-mono text-primary font-bold">JD</span>
+            <div className="w-8 h-8 rounded-full bg-gold/10 border border-gold/20 flex items-center justify-center">
+              <span className="text-[10px] font-mono text-gold font-light">JD</span>
             </div>
             <div>
-              <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">Founder Orchestrator</p>
-              <p className="text-[9px] font-mono text-muted-foreground uppercase">Session: {activeDivision?.toUpperCase()}</p>
+              <p className="text-[10px] font-mono font-light text-white uppercase tracking-tight">Founder Orchestrator</p>
+              <p className="text-[9px] font-mono text-secondary uppercase">Session: {activeDivision?.toUpperCase()}</p>
             </div>
           </div>
         </div>

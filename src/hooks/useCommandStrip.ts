@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useChat } from 'ai/react';
 
 interface UseCommandStripProps {
   projectName?: string;
@@ -11,11 +12,13 @@ export const MAX_QUERY_LENGTH = 200;
 export type TriggerType = 'whatsapp' | 'telegram' | 'email';
 
 export const useCommandStrip = ({ projectName = '', projectStage = '' }: UseCommandStripProps) => {
-  const [query, setQuery] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [response, setResponse] = useState<string | null>(null);
   const [showTriggers, setShowTriggers] = useState(false);
+
+  const { messages, input, setInput, append, isLoading, setMessages } = useChat({
+    api: '/api/mobile/query',
+    initialMessages: [],
+  });
 
   const safeProjectName = useMemo(() => projectName.trim(), [projectName]);
   const safeProjectStage = useMemo(() => projectStage.trim(), [projectStage]);
@@ -33,28 +36,15 @@ export const useCommandStrip = ({ projectName = '', projectStage = '' }: UseComm
 
   const handleSend = useCallback(async (e?: React.FormEvent) => {
     e?.preventDefault();
-    const cleanQuery = query.trim();
-    
-    if (!cleanQuery || isProcessing) return;
+    if (!input.trim() || isLoading) return;
 
-    setIsProcessing(true);
+    append({ content: input, role: 'user' });
+    setInput('');
     setIsRecording(false);
-    setResponse(null);
-
-    try {
-      // Simulate API call to agent swarm
-      await new Promise(resolve => setTimeout(resolve, COMMAND_PROCESSING_DELAY));
-      setResponse(`SYSTEM: Analysing status for "${cleanQuery}". Directing query to Division Supervisor...`);
-      setQuery('');
-    } catch (error) {
-      setResponse("SYSTEM ERROR: Command execution failed.");
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [query, isProcessing]);
+  }, [input, isLoading, append, setInput]);
 
   const handleTrigger = useCallback((type: TriggerType) => {
-    if (isProcessing) return;
+    if (isLoading) return;
     
     const text = templates[type];
     
@@ -69,26 +59,27 @@ export const useCommandStrip = ({ projectName = '', projectStage = '' }: UseComm
         const body = bodyParts.join('\n\n');
         window.open(`mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
       }
-      setResponse(`COMMUNICATION DRAFTED: Opening ${type.toUpperCase()} client channel.`);
     } catch (err) {
-      setResponse(`ERROR: Could not open ${type.toUpperCase()} client.`);
+      console.error(`ERROR: Could not open ${type.toUpperCase()} client.`);
     }
-  }, [isProcessing, templates]);
+  }, [isLoading, templates]);
 
-  const toggleRecording = useCallback(() => setIsRecording(prev => !prev), []);
+  const toggleRecording = useCallback(() => setIsRecording(prev => prev), []); // Mock for now
   const toggleTriggers = useCallback(() => setShowTriggers(prev => !prev), []);
+  const clearMessages = useCallback(() => setMessages([]), [setMessages]);
 
   return {
-    query,
-    setQuery,
+    query: input,
+    setQuery: setInput,
     isRecording,
-    isProcessing,
-    response,
+    isProcessing: isLoading,
+    messages,
     showTriggers,
     safeProjectName,
     handleSend,
     handleTrigger,
     toggleRecording,
-    toggleTriggers
+    toggleTriggers,
+    clearMessages
   };
 };

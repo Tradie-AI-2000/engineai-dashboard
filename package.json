@@ -6,7 +6,11 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui",
+    "test:e2e:p0": "npx playwright test --grep @P0",
+    "test:e2e:debug": "npx playwright test --debug"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.58",
@@ -24,10 +28,14 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@playwright/test": "^1.59.1",
+    "@seontechnologies/playwright-utils": "^4.2.0",
     "@types/node": "^20.17.14",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
     "autoprefixer": "^10.4.20",
+    "dotenv": "^17.4.0",
     "eslint": "^9.18.0",
     "eslint-config-next": "16.0.0",
     "postcss": "^8.5.1",

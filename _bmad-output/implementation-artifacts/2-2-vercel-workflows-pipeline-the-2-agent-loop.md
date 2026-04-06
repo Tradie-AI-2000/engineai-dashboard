@@ -1,52 +1,62 @@
 # Story 2.2: Vercel Workflows Pipeline (The 2-Agent Loop)
 
-Status: in-progress
+Status: ready-for-dev
+
+<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
-As an Orchestrator,
-I want a durable Vercel Workflow pipeline connecting the CEO and Architect agents,
-so that I can ensure project specifications are refined and approved without manual intervention.
+As a Founder-Orchestrator,
+I want a durable orchestration pipeline using Vercel Workflows for the CEO-Specialist loop,
+so that complex project builds can run autonomously for 24+ hours without timeouts.
 
 ## Acceptance Criteria
 
-1. **Vercel Workflows integrated** using the `@upstash/workflow` or Vercel-native SDK (configured for 2026 standards). [Source: architecture.md#Durable Logic]
-2. **2-Agent Loop established** where the CEO Agent initiates a task and the Architect Agent provides a technical assessment. [Source: epics.md#Story 2.2]
-3. **Durable Handoff persistence** implemented where each step of the loop is recorded in the `task_ledger` table. [Source: Story 2.1]
-4. **Self-healing retries configured** for transient AI API failures, ensuring the pipeline can run for 24h+. [Source: prd.md#FR1]
-5. **HUD visualization updated** to show "Active Pipeline" status during the loop execution.
+1. **Given** the Vercel AI SDK and Vercel Workflows
+   **When** I initiate a project build pipeline
+   **Then** the workflow coordinates the handoff between the CEO and the primary Specialist agent (CEO provides intent, Specialist executes/specifies).
+2. **And** the workflow state is persisted in the `task_ledger` at every checkpoint (using the schema from Story 2.1). [Source: architecture.md#Task Ledger]
+3. **And** the pipeline survives serverless cold-starts or transient timeouts by resuming from the last successful checkpoint (NFR7). [Source: prd.md#NFR7]
+4. **And** the implementation utilizes `@upstash/workflow` as the engine for Vercel Workflows as per 2026 standards. [Source: architecture.md#ADR-002]
+5. **And** self-healing retries are configured for transient AI API failures (NFR8). [Source: prd.md#NFR8]
+6. **And** the 2-Agent Loop utilizes the `HandoffEnvelopeSchema` for all state transitions. [Source: architecture.md#Handoff Envelope]
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Workflow Infrastructure (AC: 1, 4)**
-  - [x] Integrate `@upstash/workflow` for durable agent coordination.
-  - [x] Establish workflow endpoint at `src/app/api/workflows/agent-loop/route.ts`.
-- [x] **Task 2: CEO-Architect Handoff (AC: 2, 3)**
-  - [x] Implement durable `context.run` steps for CEO intent and Architect spec.
-  - [x] Persist each step to the `task_ledger` with recursive parent IDs.
-- [x] **Task 3: AI SDK Integration (AC: 2)**
-  - [x] Use Vercel AI SDK `generateText` with Gemini 2.0 Flash within workflow steps.
-  - [x] Implement role-specific prompting for CEO and Architect agents.
-- [x] **Task 4: HUD Sync (AC: 5)**
-  - [x] Add "Initiate Handoff Loop" trigger button to `Sidebar.tsx`.
-  - [x] Ensure HUD and Sidebar are Client Components to handle operational interactivity.
+- [ ] **Task 1: Workflow Infrastructure (AC: 1, 4, 5)**
+  - [ ] Initialize `@upstash/workflow` in the Next.js 16 project.
+  - [ ] Create the core workflow endpoint at `src/app/api/workflows/agent-loop/route.ts`.
+  - [ ] Configure retry policies (max 3 attempts) and failure handling for durable execution. [Source: architecture.md#Task Ledger]
+- [ ] **Task 2: CEO-Specialist Handoff Logic (AC: 1, 2, 6)**
+  - [ ] Implement the first `context.run` step for the CEO Agent to define the task intent.
+  - [ ] Implement the second `context.run` step for the Specialist Agent (Architect) to generate the technical spec/output.
+  - [ ] Integrate the `task_ledger` persistence for each step using the `handoff` schema from `src/lib/schemas/handoff.ts`.
+- [ ] **Task 3: AI SDK Integration (AC: 1)**
+  - [ ] Use Vercel AI SDK `generateText` with `google('gemini-2.0-flash-001')` within workflow steps.
+  - [ ] Ensure prompt templates for CEO and Architect roles are correctly loaded.
+- [ ] **Task 4: HUD Sync & Validation (AC: 5)**
+  - [ ] Add a temporary "Initiate Handoff Loop" trigger button to the dashboard (e.g., in `Sidebar.tsx` or `HUD.tsx`).
+  - [ ] Display real-time "Active Pipeline" status on the HUD telemetry cards. [Source: ux-design-specification.md#UX-DR1]
 
 ## Dev Notes
 
-- **Durability:** The use of Upstash Workflows ensures that agent reasoning loops can persist through transient timeouts and continue execution asynchronously.
-- **Provider setup:** Installed `@ai-sdk/google` to support the required Gemini model for agentic logic.
-- **Build stability:** Fixed Next.js 16 Client/Server component boundary issues by applying `'use client'` to HUD and Sidebar.
+- **Durable Logic:** Refer to `architecture.md#ADR-002` for the decision to use Vercel Workflows.
+- **Node.js Runtime:** All agent reasoning and workflow steps MUST run in the Node.js (Standard Serverless) runtime, NOT Edge (ADR-003).
+- **Handoff Schema:** Must use the Zod schema defined in `src/lib/schemas/handoff.ts`.
+- **Gemini 2.0:** Use `@ai-sdk/google` provider.
+- **Environment:** Ensure `UPSTASH_WORKFLOW_URL` and `UPSTASH_WORKFLOW_TOKEN` are configured in `.env.local`.
 
 ### Project Structure Notes
 
-- **Workflows:** `src/app/api/workflows/` established as the orchestration hub.
-- **Agents:** Inline prompting used for Phase 1; move to `src/lib/agents/` in subsequent stories.
+- **Workflows:** Located in `src/app/api/workflows/`.
+- **Agents:** Logic should be modularized in `src/lib/agents/` to support future hot-loading (FR11).
+- **Ledger:** Interaction logic in `src/lib/tasks.ts`.
 
 ### References
 
-- [Source: architecture.md] - Durable Logic & Vercel SDK patterns.
-- [Source: prd.md] - FR1: Real-time Orchestration.
-- [Source: Story 2.1] - The Task Ledger implementation.
+- [Source: _bmad-output/planning-artifacts/prd.md#FR21] - The Supervisor (SRE Agent) & Self-Healing.
+- [Source: _bmad-output/planning-artifacts/architecture.md#Durable Logic] - Workflow pattern and Task Ledger schema.
+- [Source: _bmad-output/implementation-artifacts/2-1-the-task-ledger-handoff-envelope-schema.md] - Task Ledger and Handoff Schema dependency.
 
 ## Dev Agent Record
 
@@ -56,22 +66,6 @@ Gemini 2.5 Flash
 
 ### Debug Log References
 
-- Build successful: 5/5 pages verified (including `/api/workflows/agent-loop`).
-- Corrected Parenthesized expression error in HUD.tsx.
-
 ### Completion Notes List
 
-- Vercel Workflows integrated with Upstash.
-- Durable 2-agent loop (CEO -> Architect) implemented.
-- Handoffs persistently logged to `task_ledger`.
-- Operational trigger added to dashboard HUD.
-
-### Review Findings
-
-- [x] [Review][Critical] Spec Compliance: Added `retries: 3` to the workflow configuration for self-healing (AC 4).
-- [x] [Review][Patch] Functional Integration: Replaced `alert()` trigger with a real `fetch` call to the workflow API (AC 5).
-- [x] [Review][Patch] HUD Dynamics: Added a visual "Pipeline: Active" pulsing indicator to the HUD header (AC 5).
-- [x] [Review][Patch] Runtime Safety: Implemented workflow payload validation and AI response guards.
-- [x] [Review][Patch] UI Safety: Added array and null guards for `DIVISIONS` and `filteredProjects` in the Sidebar.
-
-Status: done
+### File List

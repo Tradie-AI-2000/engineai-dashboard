@@ -1,56 +1,68 @@
 # Story 3.3: The Surgical Lock Protocol (HITL Intervention)
 
-Status: in-progress
+Status: ready-for-dev
 
 ## Story
 
 As a Founder-Orchestrator,
-I want to surgically lock any project stage for manual review (HITL),
-so that I can approve critical refactors before the agent proceeds to deployment.
+I want the system to automatically pause agent execution when I intervene in a build,
+so that I have absolute sovereignty and prevent agent conflicts during my refactors (UX-DR2).
 
 ## Acceptance Criteria
 
-1. **"Surgical Lock" interface implemented** allowing users to click a stage on the `ProgressiveRibbon` to toggle a "Manual Review" state. [Source: prd.md#FR11]
-2. **HITL State persistence** established where locking a stage marks the current project as `blocked` in `src/lib/data.ts` and logs a "Surgical Intervention" task. [Source: Story 2.1]
-3. **Cinematic "Lock" visual feedback** applied to the Ribbon, featuring an Amber padlock icon and "Manual Intervention Required" labels. [Source: ux-design-specification.md#Cinematic UI]
-4. **NZ English utilized** for all lock diagnostics (e.g., "Authorising Surgical Lock", "Intervention Synchronised").
-5. **Responsiveness maintained** with the lock interaction occurring within the 500ms threshold.
+1. **"Surgical Lock" interface implemented** allowing users to click a stage on the `ProgressiveRibbon` to toggle a "Manual Review" state. [Source: epics.md#Story 3.3]
+2. **HITL State persistence** established where locking a stage marks the current project as `blocked` in `src/lib/data.ts` and updates the `lockedStages` array. [Source: architecture.md#Task Ledger]
+3. **Vercel Workflow Integration:** Entering a lock state must trigger a blocking "checkpoint" in the active Vercel Workflow. [Source: architecture.md#ADR-002]
+4. **Cinematic "Lock" visual feedback** applied to the Ribbon:
+   - UI shifts from "Engine Gold" to "Control Slate" (#E0E0E0) for the locked stage.
+   - Amber padlock icon (#F59E0B) appears with pulsing animation.
+   - "Manual Intervention Required" label displayed.
+5. **NZ English utilized** for all lock diagnostics (e.g., "Authorising Surgical Lock", "Intervention Synchronised").
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Surgical Lock Component (AC: 1, 3)**
-  - [x] Update `ProgressiveRibbon.tsx` to handle click events on stage nodes.
-  - [x] Implement an `isLocked` state for each stage with Amber visual styling and glowing shadows.
-  - [x] Add Amber padlock icons to locked nodes using `AnimatePresence`.
-- [x] **Task 2: State Synchronization (AC: 2)**
-  - [x] Update `MOCK_PROJECTS` in `src/lib/data.ts` to support `lockedStages` schema.
-  - [x] Implement local `projects` state in `HUD.tsx` to manage lock toggles reactively.
-  - [x] Ensure locking a stage marks the project as `blocked`.
-- [x] **Task 3: HUD Visual Feedback (AC: 3, 5)**
-  - [x] Update the project card in `HUD.tsx` to display a pulsing "HITL LOCK ACTIVE" badge.
-  - [x] Implement Amber background and border tints for locked project cards.
-- [x] **Task 4: Linguistic Refinement (AC: 4)**
-  - [x] Verify all surgical lock labels use NZ English (e.g., "Authorised", "Initialising").
-  - [x] Add functional console logging for executive lock authorisation.
+- [ ] **Task 1: Ribbon Interaction & UI State (AC: 1, 4)**
+  - [ ] Update `ProgressiveRibbon.tsx` to handle click-to-lock events.
+  - [ ] Implement "Control Slate" (#E0E0E0) theme for locked nodes.
+  - [ ] Integrate Amber padlock icon with `framer-motion` animation.
+- [ ] **Task 2: State Management & Persistence (AC: 2)**
+  - [ ] Update project data schema to support persistent `lockedStages`.
+  - [ ] Implement `handleToggleLock` in `HUD.tsx` to sync with backend/mock-data.
+  - [ ] Ensure project status transitions to `blocked` when any stage is locked.
+- [ ] **Task 3: Workflow Checkpoint Logic (AC: 3)**
+  - [ ] Implement a middleware/hook to intercept workflow progress if a lock is detected.
+  - [ ] Verify "checkpoint" state in Vercel Workflows stops autonomous execution.
+- [ ] **Task 4: NZ English & Polish (AC: 5)**
+  - [ ] Review all UI strings for NZ English spelling and tone.
 
 ## Dev Notes
 
-- **HITL Interactivity:** Users can now click any stage node on the Ribbon to toggle a manual override. This signals the system to halt autonomous progress for that specific project.
-- **Cinematic UI:** Leveraged `AnimatePresence` for the padlock icon to provide a smooth "reveal" effect when locking.
-- **State management:** Local state used in `HUD.tsx` for immediate reactive feedback; Phase 2 will involve persisting these locks to the `task_ledger` via an API.
+- **Sovereignty First:** This is a high-leverage safety feature. The lock must be absolute; no agent should proceed while a stage is locked.
+- **Visual Cues:** The shift to "Control Slate" is a psychological trigger for the user that they are in "Manual Control" mode.
 
 ### Project Structure Notes
 
-- **UI:** `ProgressiveRibbon` updated with interaction logic.
-- **HUD:** Now orchestrates both global telemetry and surgical project overrides.
+- `src/components/ui/ProgressiveRibbon.tsx`: Main interaction point.
+- `src/features/cockpit/HUD.tsx`: Orchestrates the project state.
+- `src/lib/data.ts`: Schema definitions for `lockedStages`.
 
 ### References
 
-- [Source: prd.md] - FR11: Manual Override / Kill-switch.
-- [Source: ux-design-specification.md] - Cinematic UI & Portal Patterns.
-- [Source: Story 1.5] - Progressive Ribbon implementation.
+- [Source: prd.md] - Section: User Journeys (The "Executive Tap").
+- [Source: architecture.md] - ADR-002: Vercel Workflows.
+- [Source: ux-design-specification.md] - Cinematic UI patterns.
 
-## Dev Agent Record
+### Review Findings
+
+- [ ] [Review][Patch] AC 4 Violation: Locked Node Color [src/components/ui/ProgressiveRibbon.tsx]
+- [ ] [Review][Patch] AC 4 Missing: Pulsing Padlock [src/components/ui/ProgressiveRibbon.tsx]
+- [ ] [Review][Patch] AC 2 Gap: State Persistence [src/features/cockpit/HUD.tsx]
+- [ ] [Review][Patch] Interaction Failure: Blocked Overlay [src/features/cockpit/HUD.tsx]
+- [ ] [Review][Patch] Edge Case: State Loss on Division Switch [src/features/cockpit/HUD.tsx]
+- [ ] [Review][Patch] UI Polish: Z-Index Ambiguity [src/features/cockpit/HUD.tsx]
+
+### Dev Agent Record
+
 
 ### Agent Model Used
 
@@ -58,21 +70,6 @@ Gemini 2.5 Flash
 
 ### Debug Log References
 
-- Build successful: 5/5 pages verified.
-- Console logs confirmed for "HITL LOCK AUTHORISED" signals.
-
 ### Completion Notes List
 
-- Surgical Lock interface implemented on ProgressiveRibbon.
-- HITL state management established in HUD.
-- "HITL LOCK ACTIVE" visual warnings integrated.
-- NZ English verified across all override labels.
-
-### Review Findings
-
-- [x] [Review][Patch] State Sync: Added `useEffect` to sync local `projects` state when `activeDivision` changes, fixing the stale UI bug.
-- [x] [Review][Patch] Status Integrity: Refactored `handleToggleLock` to ensure projects only transition to `active` from a `blocked` state when locks are removed.
-- [x] [Review][Patch] Spec Compliance: Updated all UI labels to match spec exactly (e.g., "Manual Intervention Required", "Intervention Synchronised").
-- [x] [Review][Patch] Runtime Safety: Corrected `AnimatePresence` import and added null-guards for `lockedStages` prop.
-
-Status: done
+### File List

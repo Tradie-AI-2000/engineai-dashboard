@@ -1,54 +1,58 @@
-# Story 2.4: The Supervisor SRE Agent (Self-Healing Logic)
+# Story 2.4: The Supervisor SRE Agent (Self-healing Logic)
 
-Status: in-progress
+Status: ready-for-dev
+
+<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
-As an Autonomous System,
-I want a specialized Supervisor SRE Agent to monitor and repair agent handoffs,
-so that the "Digital Assembly Line" can operate for 24h+ without manual recovery.
+As a Founder,
+I want a dedicated SRE Agent (The Supervisor) to monitor all active workflows,
+so that transient failures are autonomously resolved without my intervention.
 
 ## Acceptance Criteria
 
-1. **Supervisor SRE Agent implemented** as a specialized agent class or workflow step capable of analyzing `failed` tasks in the ledger. [Source: epics.md#Story 2.4]
-2. **Self-healing workflow established** where a task failure triggers the SRE agent to attempt a "Reprompt" or "Context Refresh". [Source: prd.md#FR1]
-3. **"Glitch" HUD feedback implemented** displaying a visual warning (Static Red glow) when the SRE agent is actively repairing a pipeline. [Source: ux-design-specification.md#Cinematic UI]
-4. **NZ English utilized** for all SRE diagnostics (e.g., "Initialising Recovery", "Synchronisation Restored").
-5. **Idempotency guaranteed** for all SRE repair attempts to prevent task duplication or cyclic failures.
+1. **SRE Agent Implementation:** A specialized agent logic (Supervisor) that can analyze `failed` tasks in the `task_ledger`. [Source: prd.md#FR21, architecture.md#Task Ledger]
+2. **Self-Healing Loop:** Transient failures in the Vercel Workflows pipeline (e.g., API timeouts) trigger the SRE agent to attempt a retry with a context refresh or a "Reprompt". [Source: prd.md#FR21, NFR8]
+3. **Idempotency & Resilience:** All repair attempts are idempotent and logged in the `effects_log` of the `task_ledger`. [Source: architecture.md#ADR-004]
+4. **Cinematic Glitch UI:** Display a "Static Red Glow" border and scan-line overlay when the SRE agent is actively repairing a pipeline. [Source: ux-design-specification.md#Status Palette]
+5. **NZ English Diagnostics:** System status labels use NZ English (e.g., "Initialising Recovery", "Synchronisation Restored"). [Source: GEMINI.md#Core Development Rules]
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: SRE Agent Logic (AC: 1, 2)**
-  - [x] Implement error handling within `src/app/api/workflows/agent-loop/route.ts` to simulate SRE intervention.
-  - [x] Add logic to persist "SRE RECOVERY" tasks to the `task_ledger` on failure.
-  - [x] Create a diagnostic payload schema for repair transparency.
-- [x] **Task 2: Recovery Workflow (AC: 2, 5)**
-  - [x] Update agent-loop to include a `catch` block that triggers the SRE recovery `context.run` step.
-  - [x] Ensure recovery tasks are linked to the failing project context.
-- [x] **Task 3: Cinematic Glitch UI (AC: 3)**
-  - [x] Create `src/features/cockpit/GlitchOverlay.tsx` with red border glows and scan-line animations.
-  - [x] Implement "SRE Intervention Active" HUD alert.
-- [x] **Task 4: Integration & Diagnostic Copy (AC: 4)**
-  - [x] Update `HUD.tsx` to handle `isSreActive` state and render visual "Repairing" feedback.
-  - [x] Add SRE Debug Mode toggle for UI verification.
-  - [x] Verify NZ English usage (e.g., "Initialising Recovery", "Synchronisation").
+- [ ] **Task 1: SRE Agent Core Logic (AC: 1, 2, 3)**
+  - [ ] Implement `src/lib/agents/sre.ts` to handle recovery reasoning.
+  - [ ] Integrate a `catch` block or a `handleFailure` step in `src/app/api/workflows/agent-loop/route.ts`.
+  - [ ] Ensure the SRE agent can read the failing task's `checkpoint` and `last_error`.
+- [ ] **Task 2: Durable Recovery Workflow (AC: 2, 3)**
+  - [ ] Use `context.run` to encapsulate the SRE repair logic within the Vercel Workflow.
+  - [ ] Implement logic to update `task_ledger` with the recovery status and attempt count.
+- [ ] **Task 3: Glitch Overlay UI Integration (AC: 4)**
+  - [ ] Implement (or refine) `src/features/cockpit/GlitchOverlay.tsx` with the Tech Noir aesthetic.
+  - [ ] Integrate the overlay into `HUD.tsx` and drive it via a `isSreActive` property or global state.
+- [ ] **Task 4: Diagnostic Copy & Localization (AC: 5)**
+  - [ ] Add NZ English status messages for the recovery cycle.
+  - [ ] Verify that all SRE-led labels follow the brand voice.
 
 ## Dev Notes
 
-- **Self-Healing:** In Phase 1, the SRE agent acts as a durable error-handler that ensures failures are auditable and logged before the SDK's retry logic kicks in.
-- **Visuals:** The `GlitchOverlay` provides high-impact feedback for system instability, satisfying the cinematic UI goals.
-- **Diagnostics:** NZ English copy used for all SRE outputs to maintain brand consistency.
+- **Self-Healing Logic:** The SRE agent should be designed to handle common transient issues (network timeouts, rate limits) autonomously by adjusting the retry strategy or refreshing the context window for the failing sub-agent.
+- **Workflow Durability:** Refer to `architecture.md#ADR-002`. All recovery steps must be durable using `@upstash/workflow`.
+- **UI Aesthetic:** The `GlitchOverlay` is a cinematic element. It should be disruptive but informative. Use #FF4B4B for the glow.
+- **NZ English:** Be strict about "Initialising", "Authorisation", and "Organisation".
 
 ### Project Structure Notes
 
-- **Automation:** SRE logic embedded into the workflow hub.
-- **Feedback:** `GlitchOverlay` established as a cockpit-level visual layer.
+- **Agents:** `src/lib/agents/sre.ts`.
+- **UI:** `src/features/cockpit/GlitchOverlay.tsx`.
+- **Workflows:** `src/app/api/workflows/agent-loop/route.ts`.
 
 ### References
 
-- [Source: prd.md] - FR1: Real-time Orchestration (Self-healing).
-- [Source: architecture.md] - Managerial Oversight & Durable Logic.
-- [Source: Story 2.2] - Vercel Workflows.
+- [Source: _bmad-output/planning-artifacts/prd.md#FR21] - The Supervisor (SRE Agent).
+- [Source: _bmad-output/planning-artifacts/architecture.md#Durable Logic] - Workflow patterns.
+- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Status Palette] - Glitch/Red Glow feedback.
+- [Source: _bmad-output/implementation-artifacts/2-3-audit-drill-down-agent-reasoning-logs.md] - Previous task ledger context.
 
 ## Dev Agent Record
 
@@ -58,21 +62,6 @@ Gemini 2.5 Flash
 
 ### Debug Log References
 
-- Build successful: 5/5 pages verified.
-- Fixed mismatched `<button>` tag in `HUD.tsx` footer.
-
 ### Completion Notes List
 
-- Supervisor SRE agent logic established within workflow error boundaries.
-- Cinematic Glitch HUD feedback implemented.
-- SRE diagnostic logging integrated into Task Ledger.
-- Pipeline status dynamically updates to "Repairing" during SRE intervention.
-
-### Review Findings
-
-- [x] [Review][Patch] Workflow Safety: Added top-level guard for `context.requestPayload` to prevent destructuring crashes.
-- [x] [Review][Patch] Task Integrity: Implemented checks for `task.id` existence after persistence calls.
-- [x] [Review][Patch] SRE Resilience: Added defensive `try/catch` and `tenant_id` guards to the recovery logging logic.
-- [x] [Review][Patch] UI Robustness: Refined `GlitchOverlay` to explicitly validate the `isActive` boolean prop.
-
-Status: done
+### File List

@@ -1,6 +1,8 @@
 # Story 2.3: Audit Drill-down & Agent Reasoning Logs
 
-Status: in-progress
+Status: ready-for-dev
+
+<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
@@ -14,65 +16,53 @@ so that I can eliminate "human blindness" and understand why specific decisions 
 2. **"Thought Loop" Overlay established** displaying the raw prompt and completion for any agent-led task (CEO, Architect). [Source: architecture.md#Managerial Transparency]
 3. **Audit depth supported** up to 10 levels of recursion to reconstruct complex "Digital Assembly Line" handoffs. [Source: epics.md#Story 2.3]
 4. **NZ English utilized** for all system status messages in the drill-down (e.g., "Initialising Trace", "Authorisation Verified").
-5. **HUD updated** to support task selection and interactive state transitions for the drill-down view.
+5. **Tech Noir Aesthetic maintained** using glass-morphic `backdrop-blur-2xl` and Engine Gold (#C4A35A) accents for the drill-down drawer. [Source: ux-design-specification.md]
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Audit Drill-down Component (AC: 1, 3)**
-  - [x] Create `AuditDrilldown.tsx` in `src/features/cockpit/`.
-  - [x] Implement hierarchical rendering for `parent_task` relationships.
-  - [x] Apply glass-morphic `backdrop-blur-2xl` styling for the drawer effect.
-- [x] **Task 2: Reasoning Log Viewer (AC: 2)**
-  - [x] Create `ReasoningLog.tsx` in `src/components/ui/`.
-  - [x] Implement JSONB object exploration with JetBrains Mono.
-  - [x] Add scrollable container for long agent "Thought Loops".
-- [x] **Task 3: HUD Interaction (AC: 5)**
-  - [x] Update `HUD.tsx` to manage `selectedTask` state via `AnimatePresence`.
-  - [x] Integrate interactive click events on the Task Ledger Audit stream.
-- [x] **Task 4: Data Fetching (AC: 1)**
-  - [x] Establish `AuditTask` interface for consistent tree mapping.
-  - [x] Verify animation performance for drawer transitions.
+- [ ] **Task 1: Audit Drill-down Component (AC: 1, 3, 5)**
+  - [ ] Create/Refine `AuditDrilldown.tsx` in `src/features/cockpit/`.
+  - [ ] Implement a right-aligned motion drawer (Framer Motion) that slides in over the HUD.
+  - [ ] Build a recursive `TaskAncestry` component to render up to 10 levels of `parent_task` links.
+  - [ ] Apply "Cinematic UI" styling: right-aligned, simulating "opening an encrypted file."
+- [ ] **Task 2: Reasoning Log Viewer (AC: 2, 5)**
+  - [ ] Create/Refine `ReasoningLog.tsx` in `src/components/ui/`.
+  - [ ] Use `JetBrains Mono` for the log text to reinforce the technical/precision aesthetic.
+  - [ ] Map JSONB `payload` keys to labeled sections: `intent`/`prompt` -> "SYSTEM INPUT", `spec`/`response` -> "AGENT OUTPUT".
+  - [ ] Ensure scrollable, high-density layout for long "Thought Loops".
+- [ ] **Task 3: HUD Integration & Handoff Metadata (AC: 1, 5)**
+  - [ ] Update `HUD.tsx` to manage `selectedTask` state and trigger the drawer.
+  - [ ] Display `HandoffEnvelope` metadata (e.g., effect IDs, sender/recipient roles) within the drill-down.
+  - [ ] Add a visual "heartbeat" or pulse indicator to the active trace line.
 
 ## Dev Notes
 
-- **Cinematic UI:** The drill-down uses a right-aligned motion drawer to simulate "opening an encrypted file."
-- **Transparency:** The `ReasoningLog` provides raw access to the agent payloads, fulfilling the managerial transparency requirement.
-- **Recursion:** While the UI supports depth, Phase 1 focuses on the immediate parent relationship for the CEO -> Architect loop.
+- **Managerial Transparency:** This is a core "Anti-SaaS" feature. We don't hide the complexity; we make it readable.
+- **Cinematic Experience:** The drill-down should feel like a "Surgical Deep-Dive." Use subtle flickering or scan-line animations if possible during data load.
+- **Performance:** Ensure the recursive fetching (if not already hydrated in the ledger) handles depth efficiently without blocking the UI thread.
+- **NZ English:** Ensure labels like "Initialising Trace" and "Authorisation Verified" are used precisely.
 
 ### Project Structure Notes
 
-- **Auditing:** `AuditDrilldown.tsx` orchestrates the trace view.
-- **UI Primitives:** `ReasoningLog` added to `src/components/ui/`.
+- **Feature Location:** `src/features/cockpit/` for orchestration components.
+- **UI Primitives:** `src/components/ui/` for the raw log viewer.
+- **State:** Use local state or a lightweight `selectedTask` atom if multiple components need to trigger the drill-down.
 
 ### References
 
-- [Source: prd.md] - FR10: Managerial Oversight.
-- [Source: architecture.md] - Managerial Transparency patterns.
-- [Source: Story 2.1] - Task Ledger Schema.
+- [Source: prd.md] - FR5: Audit Drill-down, FR10: Agentic Workforce.
+- [Source: architecture.md] - Managerial Transparency, Handoff Protocol.
+- [Source: ux-design-specification.md] - Tech Noir Aesthetic, Surgical Intervention.
+- [Source: epics.md] - Story 2.3.
 
 ## Dev Agent Record
 
 ### Agent Model Used
 
-Gemini 2.5 Flash
+- N/A (Ready for Dev)
 
 ### Debug Log References
 
-- Build successful: 5/5 pages verified.
-- Fixed `retries` TypeScript error in `agent-loop/route.ts`.
-
 ### Completion Notes List
 
-- Hierarchical audit UI implemented.
-- Agent reasoning log viewer established.
-- HUD interaction established for task drill-down.
-- Tech Noir styling and animations applied to audit traces.
-
-### Review Findings
-
-- [x] [Review][Critical] Spec Compliance: Refactored AuditDrilldown to a recursive pattern supporting 10 levels of depth (AC 1 & 3).
-- [x] [Review][Patch] Transparency: Added explicit "System Input" and "Agent Output" labeling to ReasoningLog (AC 2).
-- [x] [Review][Patch] Runtime Safety: Implemented circuit-breaker for task ancestry and null-guards for JSONB payloads.
-- [x] [Review][Patch] UX Polish: Added animated transition for "Deep Trace" ancestry and improved scrollbar visibility.
-
-Status: done
+### File List

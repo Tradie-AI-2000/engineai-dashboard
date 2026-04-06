@@ -4,15 +4,45 @@
 
 :root {
   --background: 10 10 10; /* #0A0A0A */
-  --foreground: 224 224 224; /* #E0E0E0 */
+  --foreground: 232 230 225; /* #E8E6E1 */
   --primary: 196 163 90; /* #C4A35A */
-  --surface: 18 18 18; /* #121212 */
+  --surface: 17 17 17; /* #111111 */
+  --gold: 196 163 90;
 }
 
 body {
-  background-color: rgb(var(--background));
+  background: linear-gradient(145deg, #080808 0%, #0f0f0f 48%, #0a0a0a 100%);
   color: rgb(var(--foreground));
-  font-family: var(--font-inter), sans-serif;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Ambient Atmosphere */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+.liquid-glass {
+  background: rgba(12, 12, 12, 0.84);
+  backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.gold-glow {
+  box-shadow: 0 0 20px rgba(196, 163, 90, 0.15);
+  border-color: rgba(196, 163, 90, 0.24);
 }
 
 .mono {

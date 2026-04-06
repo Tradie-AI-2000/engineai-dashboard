@@ -1,80 +1,85 @@
+---
+story_id: 3.1
+story_key: 3-1-the-quick-look-portal-glass-morphic-previews
+epic_id: 3
+title: The Quick-Look Portal (Glass-morphic Previews)
+status: ready-for-dev
+date: 2026-04-05
+author: Gemini CLI
+---
+
 # Story 3.1: The Quick-Look Portal (Glass-morphic Previews)
 
-Status: in-progress
-
-## Story
-
-As a Founder-Orchestrator,
-I want to hover over any project in the sidebar to see a glass-morphic "Quick-Look" portal,
-so that I can instantly see technical health and agent status without context-switching.
+## User Story
+**As a Founder-Orchestrator,**
+**I want** in-dashboard, glass-morphic previews of agent-generated artifacts,
+**So that** I can verify quality in seconds without context-switching to external tools (UX-DR7).
 
 ## Acceptance Criteria
 
-1. **"Quick-Look Portal" component implemented** as a high-fidelity glass-morphic hover card. [Source: ux-design-specification.md#Portal Patterns]
-2. **Real-time Telemetry integration** displaying project-specific metrics (e.g., active task, last handoff, health score) within the portal. [Source: prd.md#FR1]
-3. **Cinematic Entry animations** applied to the portal using Framer Motion (fade and subtle scale). [Source: ux-design-specification.md#Cinematic UI]
-4. **NZ English utilized** for all portal descriptions (e.g., "Analysing Architecture", "Optimising Build").
-5. **Responsiveness maintained** with the portal positioning correctly relative to the sidebar on all viewports. [Source: prd.md#NFR1]
+### 1. Glass-morphic Overlay Component
+- **Given** a project in the "War Room" view
+- **When** I click a completed or active stage on the Progressive Ribbon
+- **Then** a semi-transparent, glass-morphic overlay displays the artifact's content (Markdown, Code, or SOW)
+- **And** the overlay maintains high contrast and follows the Tech Noir aesthetic (Background: `#0A0A0A` at low opacity, Accent: `#C4A35A`)
+- **And** the overlay includes a blur effect (e.g., `backdrop-blur-md`) to ensure legibility over the dense dashboard background.
 
-## Tasks / Subtasks
+### 2. Artifact Content Rendering
+- **Given** the `QuickLookPortal` component
+- **When** an artifact is selected for preview
+- **Then** Markdown content is rendered with clean typography (Inter/JetBrains Mono)
+- **And** Code artifacts are displayed with syntax highlighting (e.g., using `react-syntax-highlighter` or similar)
+- **And** Scope of Work (SOW) or other structured documents are formatted for high readability.
 
-- [x] **Task 1: Portal Component Development (AC: 1, 3)**
-  - [x] Create `QuickLookPortal.tsx` in `src/components/ui/`.
-  - [x] Implement `backdrop-blur-xl`, `bg-surface/60`, and Engine Gold accents.
-  - [x] Add Framer Motion `AnimatePresence` for cinematic scale and fade entry.
-- [x] **Task 2: Hover Logic & State (AC: 1, 5)**
-  - [x] Update `Sidebar.tsx` with `onMouseEnter` and `onMouseLeave` handlers.
-  - [x] Implement `portalPos` state to dynamically anchor the portal to sidebar items.
-  - [x] Ensure portal respects viewport boundaries by positioning relative to item `rect.right`.
-- [x] **Task 3: Dynamic Data Binding (AC: 2, 4)**
-  - [x] Bind portal to real-time project state (stage, status).
-  - [x] Add high-density metrics for "Build Velocity" and "Security Status".
-  - [x] Verify NZ English usage (e.g., "Initialising", "Optimising").
-- [x] **Task 4: Interactive Polish (AC: 3)**
-  - [x] Apply `shadow-[0_20px_50px_rgba(0,0,0,0.5)]` for depth.
-  - [x] Verify interaction threshold meets <500ms requirement.
+### 3. Surgical Portal Deep-link
+- **Given** the preview overlay is active
+- **When** I view an artifact
+- **Then** a "Surgical Portal" link is visible
+- **And** clicking the link opens the source asset directly (e.g., in a dedicated editor view or external tool) for manual intervention.
 
-## Dev Notes
+### 4. High-Fidelity Interaction
+- **Given** the War Room dashboard
+- **When** I toggle the preview
+- **Then** the transition is smooth (e.g., 200ms fade-in/out)
+- **And** the preview can be dismissed by clicking outside or via a dedicated "Close" trigger.
 
-- **Portal Pattern:** The portal uses `fixed` positioning calculated from the sidebar item's bounding rect, ensuring it stays correctly anchored regardless of scroll position.
-- **Glass-morphism:** Leveraged Tailwind's `backdrop-blur-xl` and semi-transparent surface backgrounds to achieve the "Projected HUD" aesthetic.
-- **Accessibility:** Portal is marked as `pointer-events-none` to prevent it from interfering with sidebar clicks.
+## Developer Context & Guardrails
 
-### Project Structure Notes
+### Technical Requirements
+- **Frontend:** Next.js 16, Tailwind CSS.
+- **Styling:** Strictly follow `BRAND.md` and `DESIGN.md`. Use Vanilla CSS or Tailwind utility classes for the glass-morphic effect.
+- **Components:** Integrate with the existing `ProgressiveRibbon` and `QuickLookPortal` (if partially implemented).
 
-- **UI Primitives:** `QuickLookPortal` added to `src/components/ui/`.
-- **Sidebar:** Orchestrates the portal state and positioning.
+### Architecture Compliance
+- **UX-DR7:** Minimize context-switching by providing high-fidelity previews.
+- **Tech Noir Aesthetic:** High-density HUD style with gold accents and dark, semi-transparent backgrounds.
 
-### References
+### File Structure Requirements
+- `src/components/ui/QuickLookPortal.tsx`: Core component for the preview overlay.
+- `src/features/cockpit/HUD.tsx`: Integration point for the preview system.
 
-- [Source: ux-design-specification.md] - Portal Patterns and Cinematic UI.
-- [Source: prd.md] - FR1: Real-time Orchestration.
-- [Source: BRAND.md] - Engine Gold (#C4A35A) tokens.
+## Testing Requirements
+- **Visual Regression:** Ensure the glass-morphic effect looks consistent across different backgrounds.
+- **Content Rendering:** Verify that Markdown and Code artifacts render correctly within the overlay.
+- **Link Functionality:** Confirm the "Surgical Portal" deep-link directs to the correct resource.
 
-## Dev Agent Record
-
-### Agent Model Used
-
-Gemini 2.5 Flash
-
-### Debug Log References
-
-- Build successful: 5/5 pages verified.
-- Fixed syntax error in `ManualOverride.tsx` during integration.
-
-### Completion Notes List
-
-- Glass-morphic project preview portal implemented.
-- Dynamic positioning and hover logic established in Sidebar.
-- Cinematic entry/exit animations added via Framer Motion.
-- Real-time project telemetry binding completed.
+## Status
+- **Status:** `ready-for-dev`
+- **Context:** This is the first story in Epic 3, focusing on the visual verification layer.
 
 ### Review Findings
 
-- [x] [Review][Patch] Viewport Safety: Implemented boundary-aware positioning to prevent right-edge overflow.
-- [x] [Review][Patch] Visual Integrity: Added global scroll listener to dismiss portal and prevent trigger misalignment.
-- [x] [Review][Patch] State Logic: Added dependency guards to reset hover state on division change or unmount.
-- [x] [Review][Patch] Telemetry: Added simulated real-time metrics (Build Velocity) to satisfy AC 2.
-- [x] [Review][Patch] UI Polish: Added `.trim()` validation to sidebar command submissions to prevent empty alerts.
+#### Patches
+- [x] [Review][Patch] Hardcoded Brand Colors and Tokens [src/components/ui/QuickLookPortal.tsx]
+- [x] [Review][Patch] Broken Portal Hover Logic [src/features/cockpit/Sidebar.tsx]
+- [x] [Review][Patch] Hardcoded Language for Syntax Highlighter [src/components/ui/QuickLookPortal.tsx:84]
+- [ ] [Review][Patch] Non-functional Surgical Portal Link [src/components/ui/QuickLookPortal.tsx:112]
+- [x] [Review][Patch] Backdrop Blur Value Mismatch [src/components/ui/QuickLookPortal.tsx:26]
+- [ ] [Review][Patch] Performance: Heavy Dependencies in UI Component [src/components/ui/QuickLookPortal.tsx]
+- [ ] [Review][Patch] Missing ARIA Roles and Accessibility [src/components/ui/QuickLookPortal.tsx]
+- [ ] [Review][Patch] Magic Z-index [src/components/ui/QuickLookPortal.tsx:26]
 
-Status: done
+#### Deferred
+- [x] [Review][Defer] Portal Position Stale on Resize [src/features/cockpit/Sidebar.tsx] — deferred, pre-existing
+- [x] [Review][Defer] Hardcoded "Optimal" System Health [src/components/ui/QuickLookPortal.tsx:55] — deferred, pre-existing
+

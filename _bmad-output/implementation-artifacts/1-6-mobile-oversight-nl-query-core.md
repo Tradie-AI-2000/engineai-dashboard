@@ -1,79 +1,69 @@
-# Story 1.6: Mobile Oversight & NL Query Core
+# Story 1.6: Mobile Oversight (NL Query Core)
 
-Status: in-progress
+Status: ready-for-dev
+
+<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
-As a Founder on the move,
-I want a mobile-optimized oversight interface with a natural language query bar,
-so that I can check status and issue high-level commands without a desktop.
+As a Founder,
+I want to query my system state using natural language from my mobile device,
+so that I can maintain oversight while away from my desk.
 
 ## Acceptance Criteria
 
-1. **"Command Strip" implemented** as a persistent bottom-bar or floating action interface for mobile viewports. [Source: epics.md#Story 1.6]
-2. **Natural Language (NL) Query Bar established** allowing text input for project status queries (e.g., "Status of Jackson Construction?"). [Source: prd.md#FR19]
-3. **Voice input placeholder** integrated into the Command Strip, following the Tech Noir aesthetic. [Source: ux-design-specification.md#Action Hierarchy]
-4. **Mobile layout fully responsive** with all telemetry cards and ribbons stacking correctly and maintaining legibility. [Source: prd.md#NFR1]
-5. **Foundational Query Pattern established** using Vercel AI SDK `useChat` or `generateText` placeholders for future agent integration.
+1. **Given** a Telegram or mobile-web interface
+2. **When** I ask a query like "What is our current token burn for Jackson Construction?"
+3. **Then** the system returns a Generative UI card with the relevant metrics
+4. **And** the feedback begins streaming within 2s of the query (NFR2)
+5. **And** the system correctly identifies and extracts intent for MRR, Project stages, and Token burn queries (FR1)
 
 ## Tasks / Subtasks
 
-- [x] **Task 1: Mobile Command Strip (AC: 1, 3)**
-  - [x] Create `CommandStrip.tsx` in `src/features/cockpit/`.
-  - [x] Implement a sticky bottom-bar for mobile with a "Mic" icon and "Query" input.
-  - [x] Apply Engine Gold borders and Tech Noir styling with `backdrop-blur-xl`.
-- [x] **Task 2: NL Query Interface (AC: 2, 5)**
-  - [x] Implement a text input field with Lucide `Terminal` icon.
-  - [x] Add basic "System Response" simulated logic using `AnimatePresence`.
-  - [x] Establish foundational `setTimeout` pattern for future Vercel AI SDK hook.
-- [x] **Task 3: Layout Refinement (AC: 4)**
-  - [x] Finalize responsive stacking for `HUD.tsx` using `lg:flex-row` and `pb-24` padding for mobile.
-  - [x] Ensure telemetry cards and ribbons maintain legibility on small screens.
-- [x] **Task 4: Voice UI Integration (AC: 3)**
-  - [x] Add a visual "Recording" heartbeat animation (`animate-pulse`) for the voice placeholder.
-  - [x] Verify interaction performance (<500ms).
+- [ ] Implement API route for mobile queries (AC: #1)
+  - [ ] Create `src/app/api/mobile/query/route.ts`
+  - [ ] Implement Zod validation for inbound query payloads
+- [ ] Integrate Vercel AI SDK v6 with Executive Agent (AC: #3, #4)
+  - [ ] Configure `streamText` or `generateText` with the CEO/Executive agent logic
+  - [ ] Implement system prompt for context-aware business oversight
+- [ ] Define and Connect MCP Tools for Data Retrieval (AC: #5)
+  - [ ] Connect Supabase MCP for project stage queries
+  - [ ] Connect Stripe/Financial MCP for MRR and Token burn data
+- [ ] Implement Generative UI Response Logic (AC: #3)
+  - [ ] Design a set of "Telemetry Card" schemas for different metric types
+  - [ ] Ensure responses are optimized for mobile-responsive rendering
+- [ ] Verification & Testing (AC: #4)
+  - [ ] Verify 2s streaming start time for NL responses
+  - [ ] Test intent extraction across various NL phrasing for MRR and Token burn
 
 ## Dev Notes
 
-- **Command Strip:** The bottom-bar is fixed for mobile only (`lg:hidden`). 
-- **Desktop Parity:** Added a secondary command prompt to the desktop sidebar footer to ensure the NL feature is globally accessible.
-- **UX:** Used `framer-motion` for the command response animations to maintain the "Alive" UI feel.
+- **Orchestration:** Use Vercel AI SDK v6. The agent should be a "Managerial" level agent (CEO Agent).
+- **Design Adherence:** Generative UI cards MUST follow the Silverstone-Monaco hybrid style (Tech Noir: #0A0A0A base, #C4A35A gold accents).
+- **Data Source:** Fetch real-time metrics from Supabase and external financial integrations via MCP.
+- **Latency:** Prioritize stream start time to meet the <2s NFR.
 
 ### Project Structure Notes
 
-- **Feature:** `CommandStrip` integrated into `src/features/cockpit/`.
-- **Layout:** `HUD.tsx` now orchestrates the main viewport and the mobile interaction layer.
+- API Route: `src/app/api/mobile/query/route.ts`
+- Agent Logic: `src/agents/ceo-agent.ts` (or similar existing agent location)
+- UI Components: `src/components/telemetry-cards/`
 
 ### References
 
-- [Source: prd.md] - FR19: Mobile-Optimized Dashboard.
-- [Source: ux-design-specification.md] - Input Fields & Action Hierarchy.
-- [Source: epics.md] - Story 1.6: Mobile Oversight.
+- [Source: _bmad-output/planning-artifacts/prd.md#Executive Oversight & Portfolio Management]
+- [Source: _bmad-output/planning-artifacts/ux-design-specification.md#Platform Strategy]
+- [Source: _bmad-output/planning-artifacts/architecture.md]
 
 ## Dev Agent Record
 
 ### Agent Model Used
 
-Gemini 2.5 Flash
+gemini-2.0-pro-exp-02-05
 
 ### Debug Log References
 
-- Build successful: 4/4 pages verified.
-- Command submission interaction confirmed within 500ms threshold.
-
 ### Completion Notes List
 
-- Mobile-first "Command Strip" implemented.
-- NL query simulation established with visual feedback.
-- Responsive layout debt resolved for all HUD components.
-- Functional parity for commands established on Desktop sidebar.
-
-### Review Findings
-
-- [x] [Review][Patch] Runtime Safety: Added `clearTimeout` cleanup to prevent memory leaks in CommandStrip.
-- [x] [Review][Patch] Text Safety: Implemented `maxLength` on inputs and `max-h` with scroll on response boxes.
-- [x] [Review][Patch] Accessibility: Added `aria-label` attributes to icon-only buttons for screen reader support.
-- [x] [Review][Patch] UX Consistency: Implemented a functional command handler for the desktop sidebar prompt.
-- [x] [Review][Dismiss] Brittle CSS: The `pb-24` magic number is an acceptable tradeoff for the current Phase 1 static layout.
-
-Status: done
+### File List
+- _bmad-output/implementation-artifacts/1-6-mobile-oversight-nl-query-core.md

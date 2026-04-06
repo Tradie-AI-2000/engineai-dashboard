@@ -13,7 +13,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EngineAI Dashboard",
+  title: "EngineAI Dashboard | Strategic Operations Centre",
   description: "The autonomous operational nervous system for Engine AI.",
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="antialiased bg-background text-muted selection:bg-primary selection:text-primary-foreground">
+      <body className="antialiased bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
         <TenantProvider>
           {children}
         </TenantProvider>

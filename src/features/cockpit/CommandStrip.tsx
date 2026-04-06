@@ -1,193 +1,186 @@
 'use client'
 
-import React from 'react';
-import { Mic, Send, Terminal, MessageCircle, Mail, Smartphone, MoreVertical } from 'lucide-react';
+import React, { useRef, useEffect } from 'react';
+import { Mic, Send, Terminal, MessageCircle, Mail, MoreVertical, X, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCommandStrip, MAX_QUERY_LENGTH } from '@/hooks/useCommandStrip';
+import ProjectStatusCard from '@/components/telemetry-cards/ProjectStatusCard';
+import FinancialMetricCard from '@/components/telemetry-cards/FinancialMetricCard';
 
 interface CommandStripProps {
   projectName?: string;
   projectStage?: string;
 }
 
-/**
- * CommandStrip - Persistent UI bar for one-touch communication and agent interrogation.
- * Fulfills UX-DR8 and FR1/FR2.
- * Refactored to use custom hook for logic encapsulation and improved maintainability.
- */
 const CommandStrip: React.FC<CommandStripProps> = ({ projectName = '', projectStage = '' }) => {
   const {
     query,
     setQuery,
     isRecording,
     isProcessing,
-    response,
+    messages,
     showTriggers,
     safeProjectName,
     handleSend,
     handleTrigger,
     toggleRecording,
-    toggleTriggers
+    toggleTriggers,
+    clearMessages
   } = useCommandStrip({ projectName, projectStage });
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[100]" role="region" aria-label="Command Strip">
-      <div className="bg-surface/90 backdrop-blur-xl border-t border-primary/20 p-3 lg:p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-4">
-          
-          {/* One-Touch Communication Triggers (Desktop) */}
-          <nav className="flex items-center gap-2 border-r border-primary/10 pr-4 hidden lg:flex" aria-label="Communication Shortcuts">
-            <button 
-              onClick={() => handleTrigger('whatsapp')}
-              aria-label="Draft WhatsApp Message"
-              title="WhatsApp Client"
-              className="p-2 hover:bg-primary/10 text-primary/60 hover:text-primary transition-all rounded-sm group relative"
-            >
-              <MessageCircle size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-background border border-primary/20 text-[8px] px-2 py-1 hidden group-hover:block whitespace-nowrap">WHATSAPP DRAFT</span>
-            </button>
-            <button 
-              onClick={() => handleTrigger('telegram')}
-              aria-label="Draft Telegram Interrogation"
-              title="Telegram Channel"
-              className="p-2 hover:bg-primary/10 text-primary/60 hover:text-primary transition-all rounded-sm group relative"
-            >
-              <Send size={18} className="-rotate-12" />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-background border border-primary/20 text-[8px] px-2 py-1 hidden group-hover:block whitespace-nowrap">TELEGRAM INTERROGATION</span>
-            </button>
-            <button 
-              onClick={() => handleTrigger('email')}
-              aria-label="Draft Email Update"
-              title="Email Report"
-              className="p-2 hover:bg-primary/10 text-primary/60 hover:text-primary transition-all rounded-sm group relative"
-            >
-              <Mail size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-background border border-primary/20 text-[8px] px-2 py-1 hidden group-hover:block whitespace-nowrap">EMAIL UPDATE</span>
-            </button>
-          </nav>
-
-          <div className="flex-1 w-full flex flex-col gap-2">
-            <AnimatePresence mode="wait">
-              {response && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="p-2 bg-primary/5 border border-primary/10 rounded-sm"
-                  role="status"
-                  aria-live="polite"
-                >
-                  <p className="text-[9px] font-mono text-primary leading-tight uppercase tracking-tight">{response}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <form onSubmit={handleSend} className="flex items-center gap-3 w-full" role="search">
-              {/* Mobile Trigger Toggle */}
-              <button
-                type="button"
-                onClick={toggleTriggers}
-                aria-label={showTriggers ? "Hide communication triggers" : "Show communication triggers"}
-                className="lg:hidden p-3 bg-primary/5 border border-primary/20 text-primary/60 rounded-full focus:ring-1 focus:ring-primary outline-none"
-              >
-                <MoreVertical size={18} />
-              </button>
-
-              <button
-                type="button"
-                aria-label={isRecording ? "Stop voice command recording" : "Start voice command recording"}
-                onClick={toggleRecording}
-                className={`p-3 rounded-full border transition-all focus:ring-1 focus:ring-primary outline-none ${
-                  isRecording 
-                    ? 'bg-red-500/20 border-red-500 text-red-500 animate-pulse' 
-                    : 'bg-primary/5 border-primary/20 text-primary/60'
-                }`}
-              >
-                <Mic size={18} />
-              </button>
-
-              <div className="flex-1 relative group">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40" aria-hidden="true">
-                  <Terminal size={14} />
+    <div className="fixed bottom-0 left-0 right-0 z-[100] safe-area-inset-bottom" role="region" aria-label="Command Strip">
+      {/* Response Display Area (Mobile-First) */}
+      <AnimatePresence>
+        {messages.length > 0 && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="max-h-[60vh] overflow-y-auto bg-background/95 backdrop-blur-3xl border-t border-white/[0.07] px-4 py-6 custom-scrollbar"
+            ref={scrollRef}
+          >
+            <div className="max-w-xl mx-auto space-y-6 pb-4">
+              <div className="flex justify-between items-center border-b border-white/5 pb-2 mb-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles size={12} className="text-gold" />
+                  <span className="text-[10px] font-mono text-gold uppercase tracking-[0.2em]">Executive Intelligence Sync</span>
                 </div>
-                <input
-                  type="text"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={isProcessing ? "PROCESSING..." : `COMMAND AGENT SWARM ${safeProjectName ? `[${safeProjectName.toUpperCase()}]` : ''}...`}
-                  disabled={isProcessing}
-                  aria-label="Enter agent command"
-                  maxLength={MAX_QUERY_LENGTH}
-                  className="w-full bg-background border border-primary/20 p-2.5 pl-10 text-muted focus:border-primary outline-none transition-colors font-mono text-[10px] uppercase tracking-wider placeholder:text-muted-foreground/20"
-                />
-                {isProcessing && (
-                  <motion.div 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full"
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                    aria-label="Command is processing"
-                  />
-                )}
+                <button 
+                  onClick={clearMessages}
+                  className="text-secondary/40 hover:text-white p-1"
+                >
+                  <X size={14} />
+                </button>
               </div>
 
-              <button
-                type="submit"
-                aria-label="Send command"
-                disabled={isProcessing || !query.trim()}
-                className="p-3 bg-primary text-primary-foreground rounded-sm disabled:opacity-30 transition-opacity focus:ring-1 focus:ring-primary outline-none"
-              >
-                <Send size={18} />
-              </button>
-            </form>
+              {messages.map((m) => (
+                <div key={m.id} className={`flex flex-col gap-2 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  {m.role === 'user' ? (
+                    <div className="bg-white/5 border border-white/10 px-3 py-2 rounded-2xl rounded-tr-none max-w-[85%]">
+                      <p className="text-xs text-white/80 font-sans">{m.content}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 w-full">
+                      {m.content && (
+                        <div className="bg-gold/5 border border-gold/10 px-3 py-2 rounded-2xl rounded-tl-none max-w-[90%]">
+                          <p className="text-xs text-gold/90 font-mono leading-relaxed">{m.content}</p>
+                        </div>
+                      )}
+                      
+                      {/* Generative UI Cards from Tool Invocations/Results */}
+                      {m.toolInvocations?.map((toolInvocation) => {
+                        const { toolName, toolCallId, state } = toolInvocation;
 
-            <AnimatePresence>
-              {showTriggers && (
-                <motion.nav 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="lg:hidden flex justify-around p-2 border-t border-primary/10 mt-2"
-                  aria-label="Mobile communication shortcuts"
-                >
-                  <button 
-                    onClick={() => handleTrigger('whatsapp')} 
-                    className="flex flex-col items-center gap-1 text-[8px] text-primary/60 p-2"
-                    aria-label="Open WhatsApp to draft message"
-                  >
-                    <MessageCircle size={20} />
-                    WHATSAPP
-                  </button>
-                  <button 
-                    onClick={() => handleTrigger('telegram')} 
-                    className="flex flex-col items-center gap-1 text-[8px] text-primary/60 p-2"
-                    aria-label="Open Telegram for interrogation"
-                  >
-                    <Send size={20} className="-rotate-12" />
-                    TELEGRAM
-                  </button>
-                  <button 
-                    onClick={() => handleTrigger('email')} 
-                    className="flex flex-col items-center gap-1 text-[8px] text-primary/60 p-2"
-                    aria-label="Open Email for update report"
-                  >
-                    <Mail size={20} />
-                    EMAIL
-                  </button>
-                </motion.nav>
+                        if (state === 'result') {
+                          const { result } = toolInvocation;
+                          if (toolName === 'getProjectStatus' && !result.error) {
+                            return <ProjectStatusCard key={toolCallId} {...result} />;
+                          }
+                          if (toolName === 'getFinancialMetrics' && !result.error) {
+                            return <FinancialMetricCard key={toolCallId} {...result} />;
+                          }
+                          if (result.error) {
+                            return (
+                              <div key={toolCallId} className="p-3 border border-red-500/20 bg-red-500/5 text-[10px] font-mono text-red-400 uppercase">
+                                ERROR: {result.error}
+                              </div>
+                            );
+                          }
+                        } else {
+                          return (
+                            <div key={toolCallId} className="flex items-center gap-2 text-[10px] font-mono text-gold/40 animate-pulse uppercase">
+                              <Terminal size={12} />
+                              Executing {toolName}...
+                            </div>
+                          );
+                        }
+                        return null;
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {isProcessing && !messages[messages.length-1]?.content && (
+                <div className="flex items-center gap-3 text-gold/40 animate-pulse">
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold" />
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em]">Agent Thinking...</span>
+                </div>
               )}
-            </AnimatePresence>
-          </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="bg-background/80 backdrop-blur-2xl border-t border-white/[0.07] p-4">
+        <div className="max-w-2xl mx-auto flex flex-col gap-4">
           
-          {/* System Status (Desktop) */}
-          <div className="hidden xl:flex items-center gap-3 border-l border-primary/10 pl-4" aria-hidden="true">
-            <div className="text-right">
-              <p className="text-[8px] font-mono text-primary/40 uppercase tracking-widest leading-none">System</p>
-              <p className="text-[10px] font-mono text-primary uppercase font-bold tracking-tighter">Ready</p>
+          <form onSubmit={handleSend} className="flex items-center gap-2 w-full" role="search">
+            <button
+              type="button"
+              onClick={toggleTriggers}
+              className={`p-3 rounded-full border transition-all ${
+                showTriggers ? 'bg-gold text-black border-gold' : 'bg-white/[0.02] border-white/[0.07] text-secondary'
+              }`}
+            >
+              <MoreVertical size={20} />
+            </button>
+
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={isProcessing ? "SYNCING..." : "QUERY EXECUTIVE AGENT..."}
+                disabled={isProcessing}
+                className="w-full bg-white/[0.03] border border-white/10 p-3.5 px-5 text-white focus:border-gold/40 focus:ring-1 focus:ring-gold/20 outline-none transition-all font-mono text-xs uppercase tracking-wider rounded-full placeholder:text-secondary/30"
+              />
             </div>
-            <div className="w-8 h-8 rounded-full border border-primary/20 flex items-center justify-center bg-primary/5">
-              <Smartphone size={14} className="text-primary/40" />
-            </div>
-          </div>
+
+            <button
+              type="submit"
+              disabled={isProcessing || !query.trim()}
+              className="p-3.5 bg-gold text-black rounded-full disabled:opacity-30 transition-all active:scale-95 shadow-[0_0_20px_rgba(196,163,90,0.2)]"
+            >
+              <Send size={20} />
+            </button>
+          </form>
+
+          {/* Mobile Shortcut Drawer */}
+          <AnimatePresence>
+            {showTriggers && (
+              <motion.nav 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 20, opacity: 0 }}
+                className="grid grid-cols-3 gap-2"
+              >
+                {[
+                  { id: 'whatsapp', icon: MessageCircle, label: 'WhatsApp', color: 'text-emerald-400' },
+                  { id: 'telegram', icon: Send, label: 'Telegram', color: 'text-sky-400' },
+                  { id: 'email', icon: Mail, label: 'Email', color: 'text-amber-400' }
+                ].map((trigger) => (
+                  <button 
+                    key={trigger.id}
+                    onClick={() => handleTrigger(trigger.id as any)}
+                    className="flex flex-col items-center justify-center gap-2 bg-white/[0.02] border border-white/[0.07] p-4 rounded-2xl hover:bg-white/[0.05] transition-colors"
+                  >
+                    <trigger.icon size={24} className={trigger.color} />
+                    <span className="text-[10px] font-mono text-secondary uppercase tracking-widest">{trigger.label}</span>
+                  </button>
+                ))}
+              </motion.nav>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

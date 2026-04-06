@@ -119,29 +119,29 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
         )}
       </AnimatePresence>
       
-      <main className={`flex-1 overflow-y-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-8 bg-background/50 backdrop-blur-sm transition-all duration-500 ${isSystemPaused ? 'grayscale-[0.5] contrast-[0.8]' : ''}`}>
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-primary/10 pb-6 gap-4 font-mono relative z-20">
+      <main className={`flex-1 overflow-y-auto p-4 md:p-6 pb-24 lg:pb-6 space-y-8 bg-background transition-all duration-500 ${isSystemPaused ? 'grayscale-[0.5] contrast-[0.8]' : ''}`}>
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-white/[0.07] pb-6 gap-4 font-mono relative z-20">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-bold text-muted tracking-tighter uppercase">{division.name}</h1>
+              <h1 className="text-3xl font-light font-sans text-white tracking-tighter uppercase">{division.name}</h1>
               <div className="flex items-center gap-2">
-                <div className="px-2 py-0.5 border border-primary/20 bg-primary/5 rounded-sm">
-                  <p className={`text-[8px] uppercase tracking-[0.2em] animate-pulse ${isSreActive ? 'text-red-500' : isSystemPaused ? 'text-amber-500' : 'text-primary'}`}>
+                <div className="px-2 py-0.5 border border-gold/20 bg-gold/5 rounded-none">
+                  <p className={`text-[8px] uppercase tracking-[0.1em] animate-pulse ${isSreActive ? 'text-gold' : isSystemPaused ? 'text-white/40' : 'text-gold'}`}>
                     Pipeline: {isSreActive ? 'Repairing' : isSystemPaused ? 'Paused' : 'Active'}
                   </p>
                 </div>
                 {/* Mode Toggles */}
-                <div className="flex border border-primary/10 rounded-sm overflow-hidden ml-4">
-                  <button onClick={() => setMode('operations')} className={`px-2 py-1 text-[8px] uppercase font-bold transition-colors ${mode === 'operations' ? 'bg-primary text-primary-foreground' : 'text-primary/40 hover:bg-white/5'}`}><LayoutDashboard size={10} /></button>
-                  <button onClick={() => setMode('services')} className={`px-2 py-1 text-[8px] uppercase font-bold transition-colors ${mode === 'services' ? 'bg-blue-500 text-white' : 'text-blue-400/40 hover:bg-white/5'}`}><LifeBuoy size={10} /></button>
+                <div className="flex border border-white/[0.07] rounded-full overflow-hidden ml-4">
+                  <button onClick={() => setMode('operations')} className={`px-2 py-1 text-[8px] uppercase font-bold transition-opacity ${mode === 'operations' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}><LayoutDashboard size={10} /></button>
+                  <button onClick={() => setMode('services')} className={`px-2 py-1 text-[8px] uppercase font-bold transition-opacity ${mode === 'services' ? 'bg-gold text-black' : 'text-white/40 hover:text-white'}`}><LifeBuoy size={10} /></button>
                 </div>
               </div>
             </div>
-            <p className="text-[10px] uppercase text-primary/60 mt-1 tracking-[0.2em]">Operational Oversight: {division.slug === 'global' ? 'Active Agency Portfolio' : 'Division Intelligence'}</p>
+            <p className="text-[10px] font-mono font-light uppercase text-secondary mt-1 tracking-[0.1em]">Operational Oversight: {division.slug === 'global' ? 'Active Agency Portfolio' : 'Division Intelligence'}</p>
           </div>
-          <div className="text-right text-muted-foreground">
-            <p className="text-[10px] uppercase leading-none mb-1 text-xs text-muted-foreground/40">Last Context Sync</p>
-            <p className="text-xs font-mono uppercase">{syncTime}</p>
+          <div className="text-right text-secondary">
+            <p className="text-[10px] uppercase leading-none mb-1 text-xs">Last Context Sync</p>
+            <p className="text-xs font-mono uppercase font-light text-white">{syncTime}</p>
           </div>
         </header>
 
@@ -149,12 +149,12 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
           {mode === 'operations' ? (
             <motion.div key="operations" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
               <section className="space-y-4 relative z-20">
-                <h2 className="text-[10px] font-mono uppercase text-primary/40 tracking-[0.2em]">Strategic Rationale</h2>
+                <h2 className="text-[10px] font-mono uppercase text-secondary tracking-[0.1em]">Strategic Rationale</h2>
                 {latestDecision ? (
                   <DecisionCard rationale={latestDecision.executive_rationale!} agentRole={latestDecision.recipient_role} taskTitle={latestDecision.task_title} onClick={() => setSelectedTask(latestDecision as unknown as AuditTask)} />
                 ) : (
-                  <div className="p-8 border border-primary/10 bg-primary/5 rounded-sm flex items-center justify-center text-center opacity-40">
-                    <p className="text-[10px] font-mono uppercase tracking-widest leading-relaxed">Awaiting Agentic Decisions...</p>
+                  <div className="p-8 border border-white/[0.07] bg-card-bg rounded-lg flex items-center justify-center text-center opacity-40">
+                    <p className="text-[10px] font-mono uppercase tracking-[0.1em] leading-relaxed text-secondary">Awaiting Agentic Decisions...</p>
                   </div>
                 )}
               </section>
@@ -172,29 +172,29 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
               </section>
 
               <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-20">
-                <div className="lg:col-span-2 bg-surface border border-primary/10 p-6 rounded-sm min-h-[300px] flex flex-col relative group text-xs overflow-hidden">
+                <div className="lg:col-span-2 bg-card-bg border border-white/[0.07] p-6 rounded-lg min-h-[300px] flex flex-col relative group text-xs overflow-hidden">
                   <FlickerOverlay isActive={isRefactoring} />
                   <div className="flex justify-between items-center mb-6 font-mono relative z-20">
-                    <h2 className="text-xs uppercase text-primary/80 tracking-widest font-bold">Active Deliveries</h2>
-                    <button className="text-[10px] text-primary/40 hover:text-primary transition-colors uppercase underline font-mono">View Full Factory</button>
+                    <h2 className="text-xs uppercase text-white tracking-[0.1em] font-light">Active Deliveries</h2>
+                    <button className="text-[10px] text-gold hover:text-gold/80 transition-opacity uppercase underline font-mono">View Full Factory</button>
                   </div>
                   <div className="flex-1 space-y-6 relative z-20">
                     {[...projects, ...modules.map(m => ({ id: m.id, name: m.concept_title, stage: 'analysis', status: 'active' as const, division: 'modular' as DivisionSlug, lockedStages: [] }))].length === 0 ? (
-                      <div className="h-full flex items-center justify-center border border-primary/5 rounded-sm bg-background/20 opacity-20"><p className="text-[10px] font-mono uppercase tracking-[0.3em]">Initialising Component Stream...</p></div>
+                      <div className="h-full flex items-center justify-center border border-white/[0.07] rounded-lg bg-white/[0.02] opacity-20"><p className="text-[10px] font-mono uppercase tracking-[0.1em] text-secondary">Initialising Component Stream...</p></div>
                     ) : (
                       [...projects, ...modules.map(m => ({ id: m.id, name: m.concept_title, stage: 'analysis', status: 'active' as const, division: 'modular' as any, lockedStages: [] }))].map(project => {
                         const statusInfo = projectStatusMap[project.name] || {};
                         const isQualityValid = statusInfo.quality === 'completed';
                         const isHotLoaded = modules.some(m => m.id === project.id);
                         return (
-                          <div key={project.id} className={`border p-4 rounded-sm transition-all duration-500 relative overflow-hidden ${project.lockedStages && project.lockedStages.length > 0 ? 'border-amber-500/40 bg-amber-500/5' : 'border-primary/5 bg-background/20'}`}>
+                          <div key={project.id} className={`border p-4 rounded-lg transition-all duration-500 relative overflow-hidden ${project.lockedStages && project.lockedStages.length > 0 ? 'border-white/20 bg-white/5' : 'border-white/[0.07] bg-white/[0.02]'}`}>
                             <div className="flex justify-between items-start mb-4">
                               <div className="flex flex-wrap items-center gap-3">
-                                <span className="text-[11px] font-bold text-muted uppercase tracking-tight">{project.name}</span>
-                                {isQualityValid && <div className="flex items-center gap-1 text-[8px] font-mono text-green-500 uppercase bg-green-500/10 px-1.5 py-0.5 border border-green-500/20 rounded-xs"><ShieldCheck size={10} /> Quality Verified</div>}
-                                {isHotLoaded && <div className="flex items-center gap-1 text-[8px] font-mono text-primary uppercase bg-primary/10 px-1.5 py-0.5 border border-primary/20 rounded-xs animate-pulse font-bold tracking-widest"><Rocket size={10} /> Hot-Loaded</div>}
+                                <span className="text-[11px] font-light font-mono text-white uppercase tracking-tight">{project.name}</span>
+                                {isQualityValid && <div className="flex items-center gap-1 text-[8px] font-mono text-gold bg-gold/5 px-1.5 py-0.5 border border-gold/20 rounded-full"><ShieldCheck size={10} /> Quality Verified</div>}
+                                {isHotLoaded && <div className="flex items-center gap-1 text-[8px] font-mono text-white bg-white/10 px-1.5 py-0.5 border border-white/20 rounded-full animate-pulse font-light tracking-[0.1em]"><Rocket size={10} /> Hot-Loaded</div>}
                               </div>
-                              <span className="text-[9px] font-mono text-primary/60 uppercase">{project.stage} phase</span>
+                              <span className="text-[9px] font-mono text-secondary uppercase">{project.stage} phase</span>
                             </div>
                             <ProgressiveRibbon currentStageId={project.stage} lockedStages={project.lockedStages} onToggleLock={(stageId) => handleToggleLock(project.id, stageId)} />
                             <div className="mt-4"><CodeStream isActive={isRefactoring && project.status === 'active'} /></div>
@@ -203,21 +203,21 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
                       })
                     )}
                   </div>
-                  {isSystemPaused && <div className="absolute inset-0 bg-background/20 backdrop-grayscale flex items-center justify-center z-30"><p className="text-[10px] font-mono text-amber-500 uppercase tracking-[0.4em] font-bold">Flow Interrupted</p></div>}
+                  {isSystemPaused && <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-30"><p className="text-[10px] font-mono text-white uppercase tracking-[0.2em] font-light">Flow Interrupted</p></div>}
                 </div>
 
-                <div className="bg-surface border border-primary/10 p-6 rounded-sm flex flex-col h-full text-xs">
-                  <h2 className="text-xs font-mono uppercase text-primary/80 tracking-widest mb-6 font-bold text-xs">Task Ledger Audit</h2>
+                <div className="bg-card-bg border border-white/[0.07] p-6 rounded-lg flex flex-col h-full text-xs">
+                  <h2 className="text-xs font-mono uppercase text-secondary tracking-[0.1em] mb-6 font-light text-xs">Task Ledger Audit</h2>
                   <div className="flex-1 overflow-y-auto space-y-4 max-h-[400px] scrollbar-hide relative z-20">
-                    {tasks.length === 0 ? <p className="text-[10px] font-mono uppercase tracking-widest text-center py-10 opacity-20">Audit Stream Empty</p> : tasks.map((task) => (
-                      <button key={task.id} onClick={() => setSelectedTask(task as unknown as AuditTask)} className="w-full text-left flex gap-3 items-start border-l border-primary/20 pl-3 py-2 hover:bg-primary/5 transition-colors group">
-                        <div className={`w-1.5 h-1.5 mt-1.5 rounded-full ${task.task_title?.includes('SRE') || task.status === 'failed' ? 'bg-red-500 animate-pulse' : task.status === 'completed' ? 'bg-primary animate-pulse' : 'bg-muted-foreground'}`} />
+                    {tasks.length === 0 ? <p className="text-[10px] font-mono uppercase tracking-[0.1em] text-center py-10 opacity-20 text-secondary">Audit Stream Empty</p> : tasks.map((task) => (
+                      <button key={task.id} onClick={() => setSelectedTask(task as unknown as AuditTask)} className="w-full text-left flex gap-3 items-start border-l border-white/[0.07] pl-3 py-2 hover:bg-white/[0.02] transition-colors group">
+                        <div className={`w-1.5 h-1.5 mt-1.5 rounded-full ${task.task_title?.includes('SRE') || task.status === 'failed' ? 'bg-red-500 animate-pulse' : task.status === 'completed' ? 'bg-gold animate-pulse' : 'bg-secondary'}`} />
                         <div>
                           <div className="flex justify-between items-center gap-4">
-                            <p className={`text-[10px] font-bold uppercase ${task.task_title?.includes('SRE') || task.status === 'failed' ? 'text-red-500' : 'text-primary'}`}>{task.sender_role} → {task.recipient_role}</p>
-                            <p className="text-[8px] font-mono text-muted-foreground/40 uppercase tracking-tighter">Trace available</p>
+                            <p className={`text-[10px] font-mono font-light uppercase ${task.task_title?.includes('SRE') || task.status === 'failed' ? 'text-red-400' : 'text-secondary'}`}>{task.sender_role} → {task.recipient_role}</p>
+                            <p className="text-[8px] font-mono text-secondary/40 uppercase tracking-tighter">Trace available</p>
                           </div>
-                          <p className={`text-[11px] font-bold uppercase tracking-tight mt-0.5 ${task.task_title?.includes('SRE') ? 'text-red-400' : 'text-muted'}`}>{task.task_title}</p>
+                          <p className={`text-[11px] font-mono font-light uppercase tracking-tight mt-0.5 ${task.task_title?.includes('SRE') ? 'text-gold' : 'text-white'}`}>{task.task_title}</p>
                         </div>
                       </button>
                     ))}
@@ -225,6 +225,7 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
                 </div>
               </section>
             </motion.div>
+
           ) : (
             <motion.div key="services" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="h-full">
               <ServicesDesk />

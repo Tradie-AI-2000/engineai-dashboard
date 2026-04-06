@@ -37,39 +37,39 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-surface border border-primary/10 p-8 rounded-sm shadow-2xl">
+    <div className="min-h-screen bg-[#1f2228] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#1f2228] border border-white/10 p-8 rounded-none">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-primary tracking-tighter mb-2">COMMAND AUTHORISATION</h1>
-          <p className="text-xs font-mono uppercase text-muted-foreground">Executive Credentials Required</p>
+          <h1 className="text-2xl font-light font-mono text-white tracking-tighter mb-2 uppercase">COMMAND AUTHORISATION</h1>
+          <p className="text-xs font-mono uppercase text-white/40">Executive Credentials Required</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
-            <label className="text-xs font-mono uppercase text-primary/60 block">Identifier (Email)</label>
+            <label className="text-xs font-mono uppercase text-white/40 block">Identifier (Email)</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-background border border-primary/20 p-3 text-muted focus:border-primary outline-none transition-colors font-mono text-sm"
+              className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-white/30 outline-none transition-all font-mono text-sm rounded-none"
               placeholder="operator@engineai.co.nz"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-mono uppercase text-primary/60 block">Access Code (Password)</label>
+            <label className="text-xs font-mono uppercase text-white/40 block">Access Code (Password)</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-background border border-primary/20 p-3 text-muted focus:border-primary outline-none transition-colors font-mono text-sm"
+              className="w-full bg-white/5 border border-white/10 p-3 text-white focus:border-white/30 outline-none transition-all font-mono text-sm rounded-none"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-mono uppercase">
+            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-mono uppercase rounded-none">
               {error}
             </div>
           )}
@@ -77,14 +77,14 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-primary text-primary-foreground font-mono font-bold py-3 uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="w-full bg-white text-[#1f2228] font-mono font-light py-3 uppercase tracking-[0.1em] hover:opacity-50 transition-opacity disabled:opacity-30 rounded-none"
           >
             {loading ? 'Validating...' : 'Initialise Session'}
           </button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-primary/10 text-center">
-          <p className="text-[10px] font-mono uppercase text-muted-foreground/40 leading-relaxed">
+        <div className="mt-8 pt-6 border-t border-white/10 text-center">
+          <p className="text-[10px] font-mono uppercase text-white/20 leading-relaxed">
             Unauthorised access is strictly prohibited. All attempts are logged and audited via the Supervisor Agent.
           </p>
         </div>

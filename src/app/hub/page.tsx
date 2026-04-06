@@ -68,28 +68,28 @@ export default function IntelligenceHub() {
   }, [intel, filter, search]);
 
   return (
-    <div className="min-h-screen bg-background text-muted selection:bg-primary selection:text-primary-foreground flex flex-col">
+    <div className="min-h-screen bg-[#1f2228] text-white/60 selection:bg-white selection:text-[#1f2228] flex flex-col">
       {/* Top Header */}
-      <header className="h-20 px-6 lg:px-10 border-b border-primary/10 flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-md z-50">
+      <header className="h-20 px-6 lg:px-10 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#1f2228] z-50">
         <div className="flex items-center gap-6">
-          <Link href="/" aria-label="Return to operational cockpit" className="p-2 border border-primary/20 text-primary/60 hover:text-primary hover:border-primary transition-all rounded-sm flex items-center gap-2 group">
+          <Link href="/" aria-label="Return to operational cockpit" className="p-2 border border-white/10 text-white/40 hover:opacity-50 transition-opacity rounded-none flex items-center gap-2 group">
             <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-mono uppercase tracking-widest font-bold">Return to Cockpit</span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.1em] font-light">Return to Cockpit</span>
           </Link>
-          <div className="h-8 w-[1px] bg-primary/10" />
+          <div className="h-8 w-[1px] bg-white/10" />
           <div className="flex items-center gap-3">
-            <BookOpen size={20} className="text-primary" />
-            <h1 className="text-xl font-bold tracking-tighter text-muted uppercase">Intelligence Hub</h1>
+            <BookOpen size={20} className="text-white" />
+            <h1 className="text-xl font-light font-mono tracking-tighter text-white uppercase">Intelligence Hub</h1>
             <div className="flex gap-2 ml-6">
               <button 
                 onClick={() => setMode('research')}
-                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-sm transition-all border ${mode === 'research' ? 'bg-primary/20 border-primary text-primary' : 'border-transparent text-muted-foreground/40 hover:text-muted'}`}
+                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-opacity border ${mode === 'research' ? 'bg-white/10 border-white/40 text-white' : 'border-transparent text-white/20 hover:opacity-50'}`}
               >
                 Research
               </button>
               <button 
                 onClick={() => setMode('forge')}
-                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-sm transition-all border flex items-center gap-2 ${mode === 'forge' ? 'bg-primary/20 border-primary text-primary' : 'border-transparent text-muted-foreground/40 hover:text-muted'}`}
+                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-opacity border flex items-center gap-2 ${mode === 'forge' ? 'bg-white/10 border-white/40 text-white' : 'border-transparent text-white/20 hover:opacity-50'}`}
               >
                 <Sparkles size={10} /> Idea Forge
               </button>
@@ -99,19 +99,19 @@ export default function IntelligenceHub() {
 
         <div className="flex items-center gap-4 font-mono">
           <div className="relative group hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors" size={14} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-white transition-colors" size={14} />
             <input 
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="SEARCH VAULT..."
               aria-label="Search intelligence records"
-              className="bg-surface/40 border border-primary/10 p-2 pl-10 text-[10px] uppercase focus:border-primary outline-none transition-all w-64"
+              className="bg-white/5 border border-white/10 p-2 pl-10 text-[10px] uppercase focus:border-white/30 outline-none transition-all w-64 rounded-none font-mono tracking-[0.1em]"
             />
           </div>
           <div className="text-right hidden sm:block">
-            <p className="text-[8px] text-primary/40 uppercase tracking-widest">NZ Standard Time</p>
-            <p className="text-[10px] text-muted uppercase">{currentTime || 'INITIALISING...'}</p>
+            <p className="text-[8px] text-white/20 uppercase tracking-[0.1em]">NZ Standard Time</p>
+            <p className="text-[10px] text-white/60 uppercase font-light">{currentTime || 'INITIALISING...'}</p>
           </div>
         </div>
       </header>
@@ -119,7 +119,7 @@ export default function IntelligenceHub() {
       <div className="flex flex-1 overflow-hidden relative">
         <CuratorSidebar activeCategory={filter} onCategoryChange={setFilter} />
         
-        <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-background/50">
+        <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-[#1f2228]">
           <AnimatePresence mode="wait">
             {mode === 'research' ? (
               <motion.div 
@@ -128,7 +128,7 @@ export default function IntelligenceHub() {
               >
                 {loading ? (
                   <div className="h-64 flex flex-col items-center justify-center gap-4 opacity-40">
-                    <Loader2 size={24} className="animate-spin text-primary" />
+                    <Loader2 size={24} className="animate-spin text-white" />
                     <p className="text-[10px] font-mono uppercase tracking-[0.3em]">Initialising Vault Sync...</p>
                   </div>
                 ) : (
@@ -141,8 +141,8 @@ export default function IntelligenceHub() {
                       </AnimatePresence>
                     </div>
                     {filteredIntel.length === 0 && (
-                      <div className="h-64 flex flex-col items-center justify-center opacity-20 border border-dashed border-primary/20 rounded-sm">
-                        <p className="text-xs font-mono uppercase tracking-widest italic font-bold">No matching intel records found in Master Vault</p>
+                      <div className="h-64 flex flex-col items-center justify-center opacity-20 border border-dashed border-white/10 rounded-none">
+                        <p className="text-xs font-mono uppercase tracking-[0.1em] italic font-light">No matching intel records found in Master Vault</p>
                       </div>
                     )}
                   </>
@@ -161,9 +161,9 @@ export default function IntelligenceHub() {
         </main>
       </div>
 
-      <footer className="h-10 px-6 lg:px-10 border-t border-primary/5 flex justify-between items-center opacity-40 bg-surface/20 font-mono relative z-20">
-        <p className="text-[8px] uppercase tracking-[0.2em] leading-none">Curator Agent v1.0.4 - System: Authorised</p>
-        <p className="text-[8px] uppercase tracking-widest leading-none">Mode: {mode.toUpperCase()}</p>
+      <footer className="h-10 px-6 lg:px-10 border-t border-white/5 flex justify-between items-center opacity-40 bg-white/2 font-mono relative z-20">
+        <p className="text-[8px] uppercase tracking-[0.2em] leading-none font-light">Curator Agent v1.0.4 - System: Authorised</p>
+        <p className="text-[8px] uppercase tracking-[0.1em] leading-none font-light">Mode: {mode.toUpperCase()}</p>
       </footer>
     </div>
   );
