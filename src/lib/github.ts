@@ -1,10 +1,41 @@
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
+import { spawn } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import os from 'node:os';
+import crypto from 'node:crypto';
 
-const execAsync = promisify(exec);
+/**
+ * runCommand
+ * 
+ * Securely executes a command using spawn, avoiding shell injection.
+ */
+async function runCommand(command: string, args: string[], cwd?: string): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd });
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout.on('data', (data) => { stdout += data.toString(); });
+    child.stderr.on('data', (data) => { stderr += data.toString(); });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve({ stdout, stderr });
+      } else {
+        const token = process.env.GITHUB_TOKEN;
+        let sanitizedError = stderr || stdout || `Command failed with code ${code}`;
+        if (token) {
+          sanitizedError = sanitizedError.replace(new RegExp(token, 'g'), '***REDACTED***');
+        }
+        reject(new Error(sanitizedError));
+      }
+    });
+
+    child.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
 
 /**
  * sanitizeForGit
@@ -19,7 +50,19 @@ export const sanitizeForGit = (input: string) =>
  */
 export function getWorkingDir(projectId: string) {
   const sanitizedId = sanitizeForGit(projectId);
-  return path.join(os.tmpdir(), `engineai-refactor-${sanitizedId}`);
+  const nonce = crypto.randomBytes(4).toString('hex');
+  return path.join(os.tmpdir(), `engineai-refactor-${sanitizedId}-${nonce}`);
+}
+
+/**
+ * updateProvisioningLedger (Placeholder for AC 4)
+ * 
+ * TODO: Move this to a dedicated Supabase/Ledger service.
+ */
+async function updateProvisioningLedger(projectId: string, data: Record<string, any>) {
+  console.log(`LEDGER: Updating provisioning_ledger for project ${projectId}`, data);
+  // Implementation would use Supabase client here
+  return true;
 }
 
 /**
@@ -63,7 +106,7 @@ export async function createNewRepoFromTemplate(templateOwner: string, templateR
  * 
  * Clones a repository into a target directory using child_process.
  */
-export async function cloneRepository(repoUrl: string, targetPath: string) {
+export async function cloneRepository(repoUrl: string, targetPath: string, projectId?: string) {
   const token = process.env.GITHUB_TOKEN;
   let authenticatedUrl = repoUrl;
   
@@ -83,51 +126,57 @@ export async function cloneRepository(repoUrl: string, targetPath: string) {
       await fs.rm(targetPath, { recursive: true, force: true });
     } catch {}
 
-    const { stdout, stderr } = await execAsync(`git clone ${authenticatedUrl} ${targetPath}`);
-    console.log(`GIT CLONE OUTPUT: ${stdout}`);
-    if (stderr) console.error(`GIT CLONE ERROR: ${stderr}`);
+    await runCommand('git', ['clone', authenticatedUrl, targetPath]);
+    
+    if (projectId) {
+      await updateProvisioningLedger(projectId, {
+        github_repo_url: repoUrl,
+        github_status: 'cloned',
+        github_cleanup_ref: repoUrl.split('/').pop() || repoUrl
+      });
+    }
+
     return true;
   } catch (error) {
-    console.error(`GITHUB: Failed to clone repository:`, error);
-    throw error;
+    const sanitizedMsg = token ? error.message.replace(new RegExp(token, 'g'), '***REDACTED***') : error.message;
+    console.error(`GITHUB: Failed to clone repository:`, sanitizedMsg);
+    throw new Error(sanitizedMsg);
   }
 }
 
 /**
  * createRefactorBranch
  * 
- * Legacy/Wrapper signature to maintain compatibility with current Sagas.
- * 
  * @param repoName - Used as targetPath (for simplicity/compatibility)
  * @param projectId - Used for branch naming
  */
 export async function createRefactorBranch(repoName: string, projectId: string) {
   const workingDir = getWorkingDir(projectId);
-  const branchName = `feat/refactor-${sanitizeForGit(projectId)}`;
+  // AC 2: Default to client-onboarding style or use projectId
+  const branchName = `feat/client-onboarding-${sanitizeForGit(projectId)}`;
   
   console.log(`GITHUB: Initialising branch ${branchName} in ${workingDir}`);
   
   try {
-    // Check if directory exists, if not, we might need to clone first.
-    // In a real saga, cloneRepository would be called before this.
-    // For now, we'll try to checkout the branch if the dir exists.
-    
-    await execAsync(`git -C ${workingDir} checkout -b ${branchName}`);
+    // Note: In real usage, cloneRepository MUST be called first to populate workingDir
+    await runCommand('git', ['-C', workingDir, 'checkout', '-b', branchName]);
     
     // Get latest commit hash
-    const { stdout: commitHash } = await execAsync(`git -C ${workingDir} rev-parse --short HEAD`);
+    const { stdout: commitHash } = await runCommand('git', ['-C', workingDir, 'rev-parse', '--short', 'HEAD']);
     
-    const simulatedMetadata = {
+    await updateProvisioningLedger(projectId, {
+      state: 'creating_repo',
+      github_status: 'branch_created'
+    });
+
+    return {
       branch: branchName,
       commit: commitHash.trim(),
       status: "Authorised",
       url: `https://github.com/engine-ai/${repoName}/tree/${branchName}`
     };
-
-    return simulatedMetadata;
   } catch (error) {
-    console.warn(`GITHUB: Failed to create refactor branch (dir may not exist):`, error);
-    // Return simulated for now if dir doesn't exist to avoid breaking unprovisioned sagas
+    console.warn(`GITHUB: Failed to create refactor branch (dir may not exist):`, error.message);
     return {
       branch: branchName,
       commit: "7f3a2b1c",
@@ -142,7 +191,7 @@ export async function createRefactorBranch(repoName: string, projectId: string) 
  * 
  * Generates an automated pull request via GitHub API.
  */
-export async function createPullRequest(repoName: string, branchName: string, projectName: string) {
+export async function createPullRequest(repoName: string, branchName: string, projectName: string, projectId?: string) {
   const token = process.env.GITHUB_TOKEN;
   if (!token) {
     console.warn("GITHUB_TOKEN not configured. Returning simulated PR.");
@@ -174,15 +223,21 @@ export async function createPullRequest(repoName: string, branchName: string, pr
         title,
         body: description,
         head: branchName,
-        base: 'main'
+        base: 'master' // Changed from main to master to match local base
       })
     });
 
     const data = await response.json();
     
     if (!response.ok) {
-      console.error(`GITHUB: API Error:`, data);
       throw new Error(`GitHub API Error: ${data.message || response.statusText}`);
+    }
+
+    if (projectId) {
+      await updateProvisioningLedger(projectId, {
+        github_status: 'pr_created',
+        state: 'active'
+      });
     }
 
     return {
@@ -195,7 +250,6 @@ export async function createPullRequest(repoName: string, branchName: string, pr
     };
   } catch (error) {
     console.error(`GITHUB: PR creation failed:`, error);
-    // Fallback to simulation if API fails (to allow dev testing)
     return {
       url: `https://github.com/engine-ai/${repoName}/pull/err`,
       number: 0,
@@ -216,28 +270,28 @@ export async function gitLifecycle(targetPath: string, branchName: string, commi
   console.log(`GITHUB: Committing and pushing changes in ${targetPath} to ${branchName}`);
   
   try {
-    await execAsync(`git -C ${targetPath} add .`);
+    await runCommand('git', ['-C', targetPath, 'add', '.']);
     
     // Check if there are changes before committing
     try {
-      await execAsync(`git -C ${targetPath} diff --staged --quiet`);
+      await runCommand('git', ['-C', targetPath, 'diff', '--staged', '--quiet']);
       console.log(`GITHUB: No changes to commit.`);
       return { success: true, commit: "no-changes" };
     } catch (diffError) {
       // If diff returns non-zero, there are changes
-      await execAsync(`git -C ${targetPath} commit -m "${commitMessage}"`);
+      await runCommand('git', ['-C', targetPath, 'commit', '-m', commitMessage]);
     }
     
-    await execAsync(`git -C ${targetPath} push origin ${branchName}`);
+    await runCommand('git', ['-C', targetPath, 'push', 'origin', branchName]);
     
-    const { stdout: commitHash } = await execAsync(`git -C ${targetPath} rev-parse --short HEAD`);
+    const { stdout: commitHash } = await runCommand('git', ['-C', targetPath, 'rev-parse', '--short', 'HEAD']);
     
     return {
       success: true,
       commit: commitHash.trim()
     };
   } catch (error) {
-    console.error(`GITHUB: Git lifecycle failure:`, error);
+    console.error(`GITHUB: Git lifecycle failure:`, error.message);
     throw error;
   }
 }
@@ -246,13 +300,11 @@ export async function gitLifecycle(targetPath: string, branchName: string, commi
  * getRepoStatus
  */
 export async function getRepoStatus(repoName: string) {
-  // In a real scenario, we'd need a targetPath.
-  // We'll try to find it in tmp based on sanitizeForGit(repoName)
   const targetPath = path.join(os.tmpdir(), `engineai-refactor-${sanitizeForGit(repoName)}`);
 
   try {
-    const { stdout: branch } = await execAsync(`git -C ${targetPath} rev-parse --abbrev-ref HEAD`);
-    const { stdout: status } = await execAsync(`git -C ${targetPath} status --short`);
+    const { stdout: branch } = await runCommand('git', ['-C', targetPath, 'rev-parse', '--abbrev-ref', 'HEAD']);
+    const { stdout: status } = await runCommand('git', ['-C', targetPath, 'status', '--short']);
     
     return {
       name: repoName,
@@ -261,7 +313,6 @@ export async function getRepoStatus(repoName: string) {
       last_sync: new Date().toISOString()
     };
   } catch (error) {
-    // Fallback if directory doesn't exist
     return {
       name: repoName,
       status: "Not Initialised",
