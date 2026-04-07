@@ -80,7 +80,7 @@ export default function IntelligenceHub() {
 
       {/* Top header — fixed, glass on scroll feel via liquid-glass background */}
       <header className="relative z-40 border-b border-white/[0.07] bg-background/78 backdrop-blur-2xl">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-10 md:h-24">
+        <div className="mx-auto flex h-20 max-w-[92rem] items-center justify-between px-6 lg:px-10 md:h-24">
           <div className="flex items-center gap-6">
             <Link
               href="/"
@@ -154,7 +154,7 @@ export default function IntelligenceHub() {
       </header>
 
       {/* Main content — sidebar + canvas */}
-      <div className="relative z-10 mx-auto flex max-w-7xl">
+      <div className="relative z-10 mx-auto flex max-w-[92rem]">
         <CuratorSidebar activeCategory={filter} onCategoryChange={setFilter} />
 
         <main className="flex-1 px-6 py-12 lg:px-10 lg:py-16">
@@ -244,7 +244,7 @@ export default function IntelligenceHub() {
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/[0.05] bg-background/40 backdrop-blur-sm">
-        <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-6 lg:px-10">
+        <div className="mx-auto flex h-12 max-w-[92rem] items-center justify-between px-6 lg:px-10">
           <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-white/30">
             Curator Agent v1.0.4 &middot; System: Authorised
           </p>
