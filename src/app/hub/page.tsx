@@ -44,7 +44,7 @@ export default function IntelligenceHub() {
         const data = await getIntelligenceRecords();
         if (isMounted) setIntel(data);
       } catch (err) {
-        console.error("HUB: Failed to sync with Master Vault.");
+        console.error("HUB: Failed to sync with Master Vault.", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -68,9 +68,9 @@ export default function IntelligenceHub() {
   }, [intel, filter, search]);
 
   return (
-    <div className="min-h-screen bg-[#1f2228] text-white/60 selection:bg-white selection:text-[#1f2228] flex flex-col">
+    <div className="min-h-screen bg-background text-white/60 selection:bg-gold/25 selection:text-primary flex flex-col">
       {/* Top Header */}
-      <header className="h-20 px-6 lg:px-10 border-b border-white/10 flex items-center justify-between sticky top-0 bg-[#1f2228] z-50">
+      <header className="h-20 px-6 lg:px-10 border-b border-white/10 flex items-center justify-between sticky top-0 bg-background z-50">
         <div className="flex items-center gap-6">
           <Link href="/" aria-label="Return to operational cockpit" className="p-2 border border-white/10 text-white/40 hover:opacity-50 transition-opacity rounded-none flex items-center gap-2 group">
             <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
@@ -81,15 +81,15 @@ export default function IntelligenceHub() {
             <BookOpen size={20} className="text-white" />
             <h1 className="text-xl font-light font-mono tracking-tighter text-white uppercase">Intelligence Hub</h1>
             <div className="flex gap-2 ml-6">
-              <button 
+              <button
                 onClick={() => setMode('research')}
-                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-opacity border ${mode === 'research' ? 'bg-white/10 border-white/40 text-white' : 'border-transparent text-white/20 hover:opacity-50'}`}
+                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-colors border tracking-[0.1em] ${mode === 'research' ? 'bg-gold/10 border-gold/40 text-gold' : 'border-transparent text-white/30 hover:text-white'}`}
               >
                 Research
               </button>
-              <button 
+              <button
                 onClick={() => setMode('forge')}
-                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-opacity border flex items-center gap-2 ${mode === 'forge' ? 'bg-white/10 border-white/40 text-white' : 'border-transparent text-white/20 hover:opacity-50'}`}
+                className={`text-[10px] font-mono uppercase px-3 py-1 rounded-none transition-colors border tracking-[0.1em] flex items-center gap-2 ${mode === 'forge' ? 'bg-gold/10 border-gold/40 text-gold' : 'border-transparent text-white/30 hover:text-white'}`}
               >
                 <Sparkles size={10} /> Idea Forge
               </button>
@@ -99,14 +99,14 @@ export default function IntelligenceHub() {
 
         <div className="flex items-center gap-4 font-mono">
           <div className="relative group hidden md:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-white transition-colors" size={14} />
-            <input 
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-gold transition-colors" size={14} />
+            <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="SEARCH VAULT..."
               aria-label="Search intelligence records"
-              className="bg-white/5 border border-white/10 p-2 pl-10 text-[10px] uppercase focus:border-white/30 outline-none transition-all w-64 rounded-none font-mono tracking-[0.1em]"
+              className="bg-white/5 border border-white/10 p-2 pl-10 text-[10px] uppercase text-white placeholder:text-white/30 focus:border-gold/40 outline-none transition-all w-64 rounded-none font-mono tracking-[0.1em]"
             />
           </div>
           <div className="text-right hidden sm:block">
@@ -119,7 +119,7 @@ export default function IntelligenceHub() {
       <div className="flex flex-1 overflow-hidden relative">
         <CuratorSidebar activeCategory={filter} onCategoryChange={setFilter} />
         
-        <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-[#1f2228]">
+        <main className="flex-1 p-6 lg:p-10 overflow-y-auto bg-background">
           <AnimatePresence mode="wait">
             {mode === 'research' ? (
               <motion.div 
@@ -127,9 +127,9 @@ export default function IntelligenceHub() {
                 initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}
               >
                 {loading ? (
-                  <div className="h-64 flex flex-col items-center justify-center gap-4 opacity-40">
-                    <Loader2 size={24} className="animate-spin text-white" />
-                    <p className="text-[10px] font-mono uppercase tracking-[0.3em]">Initialising Vault Sync...</p>
+                  <div className="h-64 flex flex-col items-center justify-center gap-4">
+                    <Loader2 size={24} className="animate-spin text-gold/70" />
+                    <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/40">Initialising Vault Sync...</p>
                   </div>
                 ) : (
                   <>
