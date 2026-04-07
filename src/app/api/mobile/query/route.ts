@@ -1,31 +1,28 @@
 import { ceoAgent } from "@/agents/ceo-agent";
-import { stepCountIs, streamText } from "ai";
-import { z } from "zod";
+import {
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  type UIMessage,
+} from "ai";
 
 export const runtime = "edge";
 
-const querySchema = z.object({
-  query: z.string().min(1).max(500),
-});
-
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const result = querySchema.safeParse(body);
+    const { messages }: { messages: UIMessage[] } = await req.json();
 
-    if (!result.success) {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "Invalid query payload" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    const { query } = result.data;
-
     const response = streamText({
       model: ceoAgent.model,
       system: ceoAgent.system,
-      messages: [{ role: "user", content: query }],
+      messages: await convertToModelMessages(messages),
       tools: ceoAgent.tools,
       stopWhen: stepCountIs(5), // Allow up to 5 LLM steps for tool execution
     });

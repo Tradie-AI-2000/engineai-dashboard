@@ -64,61 +64,84 @@ const CommandStrip: React.FC<CommandStripProps> = ({ projectName = '', projectSt
                 </button>
               </div>
 
-              {messages.map((m) => (
+              {messages.map((m) => {
+                // v6 UIMessage: concatenate all text parts for display
+                const textContent = m.parts
+                  .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
+                  .map((p) => p.text)
+                  .join('');
+
+                return (
                 <div key={m.id} className={`flex flex-col gap-2 ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                   {m.role === 'user' ? (
                     <div className="max-w-[85%] rounded-[1.2rem] rounded-tr-md border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                      <p className="font-sans text-[13px] leading-6 text-white/85">{m.content}</p>
+                      <p className="font-sans text-[13px] leading-6 text-white/85">{textContent}</p>
                     </div>
                   ) : (
                     <div className="w-full space-y-4">
-                      {m.content && (
+                      {textContent && (
                         <div className="max-w-[90%] rounded-[1.2rem] rounded-tl-md border border-gold/20 bg-[linear-gradient(180deg,rgba(196,163,90,0.08),rgba(12,12,12,0.85))] px-4 py-3">
-                          <p className="font-mono text-[12px] leading-[1.6] text-gold/95">{m.content}</p>
+                          <p className="font-mono text-[12px] leading-[1.6] text-gold/95">{textContent}</p>
                         </div>
                       )}
 
-                      {/* Generative UI cards from tool invocations */}
-                      {m.toolInvocations?.map((toolInvocation) => {
-                        const { toolName, toolCallId, state } = toolInvocation;
+                      {/* Generative UI cards from tool parts (v6: type `tool-<name>`) */}
+                      {m.parts.map((part, idx) => {
+                        if (!part.type.startsWith('tool-')) return null;
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        const p = part as any;
+                        const toolName = part.type.slice(5);
+                        const key = p.toolCallId ?? `${m.id}-${idx}`;
 
-                        if (state === 'result') {
-                          const { result } = toolInvocation;
-                          if (toolName === 'getProjectStatus' && !result.error) {
-                            return <ProjectStatusCard key={toolCallId} {...result} />;
+                        if (p.state === 'output-available') {
+                          const result = p.output;
+                          if (toolName === 'getProjectStatus' && !result?.error) {
+                            return <ProjectStatusCard key={key} {...result} />;
                           }
-                          if (toolName === 'getFinancialMetrics' && !result.error) {
-                            return <FinancialMetricCard key={toolCallId} {...result} />;
+                          if (toolName === 'getFinancialMetrics' && !result?.error) {
+                            return <FinancialMetricCard key={key} {...result} />;
                           }
-                          if (result.error) {
+                          if (result?.error) {
                             return (
                               <div
-                                key={toolCallId}
+                                key={key}
                                 className="rounded-[1rem] border border-signal-error/25 bg-signal-error/[0.06] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-signal-error"
                               >
                                 ERROR &middot; {result.error}
                               </div>
                             );
                           }
-                        } else {
+                          return null;
+                        }
+
+                        if (p.state === 'output-error') {
                           return (
                             <div
-                              key={toolCallId}
-                              className="flex animate-pulse items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-gold/50"
+                              key={key}
+                              className="rounded-[1rem] border border-signal-error/25 bg-signal-error/[0.06] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-signal-error"
                             >
-                              <Terminal size={12} />
-                              Executing {toolName}...
+                              ERROR &middot; {p.errorText}
                             </div>
                           );
                         }
-                        return null;
+
+                        return (
+                          <div
+                            key={key}
+                            className="flex animate-pulse items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.22em] text-gold/50"
+                          >
+                            <Terminal size={12} />
+                            Executing {toolName}...
+                          </div>
+                        );
                       })}
                     </div>
                   )}
                 </div>
-              ))}
+                );
+              })}
 
-              {isProcessing && !messages[messages.length - 1]?.content && (
+              {isProcessing && !messages[messages.length - 1]?.parts.some((p) => p.type === 'text') && (
                 <div className="flex animate-pulse items-center gap-3 text-gold/60">
                   <span
                     aria-hidden="true"
