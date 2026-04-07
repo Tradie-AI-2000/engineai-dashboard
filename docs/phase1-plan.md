@@ -256,7 +256,7 @@ Lessons paid for in blood. Each one is explicitly forbidden in Phase 1a:
 6. **No assistant/tool history accepted from the browser.** API routes strip to last user message only. (ENG-97.)
 7. **No skipping the decisions doc.** Re-read before every commit touching agents, schemas, or tools.
 8. **No bundling Phase 1b/1c work into Phase 1a PRs.** "While I'm in here..." is how scope dies. If it's not in the build order above, it's a separate PR in a later phase.
-9. **No long branches.** Each step is its own branch + PR. Codex review every commit. Merge fast.
+9. **One branch for Phase 1a, one PR at the end.** Steps 2-6 all land as commits on `ben/phase1a`. Local checks (`tsc + lint + test + build`) run after every step before commit. One PR + one Codex review when the loop demo works. PR-per-step is process theatre for a one-person review team on a 17h plan. (Reverted from the original "step = branch + PR" rule on 2026-04-07 after Step 1 shipped — see commit history.)
 10. **No silent failures.** Every error path either throws cleanly or returns a typed error. No `catch {}`.
 11. **No overclaiming scope.** Phase 1a implements an internal loop proof, not FR1-FR5. The cockpit shell is *placeholder chrome* for divisions and approval gates that land in later phases. Don't pretend otherwise in commit messages, PR descriptions, or Linear updates.
 
