@@ -15,6 +15,7 @@ import { DIVISIONS, DivisionSlug } from '@/lib/data';
 import { useFilteredProjects } from '@/hooks/useFilteredProjects';
 import { useTaskLedger } from '@/hooks/useTaskLedger';
 import { useActiveModules } from '@/hooks/useActiveModules';
+import { useCockpitShell } from '@/components/CockpitShell';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ShieldCheck, ShieldAlert, Cpu, Database, Github, GitBranch, GitPullRequest, ExternalLink, Lock, Rocket, LayoutDashboard, LifeBuoy } from 'lucide-react';
 
@@ -22,10 +23,18 @@ type CockpitMode = 'operations' | 'services';
 
 interface HUDProps {
   activeDivision?: DivisionSlug;
+  /**
+   * Optional override. When omitted, HUD reads pause state from
+   * <CockpitShell> via useCockpitShell(). The prop exists so the
+   * component can still be mounted in isolation (Storybook, tests)
+   * without a shell wrapper.
+   */
   isSystemPaused?: boolean;
 }
 
-const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = false }) => {
+const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused: pausedProp }) => {
+  const { isSystemPaused: pausedFromShell } = useCockpitShell();
+  const isSystemPaused = pausedProp ?? pausedFromShell;
   const [mode, setMode] = useState<CockpitMode>('operations');
   const division = useMemo(() => 
     Array.isArray(DIVISIONS) ? (DIVISIONS.find(d => d.slug === activeDivision) || DIVISIONS.find(d => d.slug === 'global') || DIVISIONS[0]) : null
