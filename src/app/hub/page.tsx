@@ -85,9 +85,9 @@ export default function IntelligenceHub() {
             <Link
               href="/"
               aria-label="Return to operational cockpit"
-              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#cec9c1] transition-all duration-300 hover:border-gold/30 hover:text-white"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.02] px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-[#cec9c1] transition-all duration-300 hover:border-teal/30 hover:bg-teal/[0.04] hover:text-teal"
             >
-              <ArrowLeft size={12} className="transition-transform group-hover:-translate-x-0.5" />
+              <ArrowLeft size={13} className="transition-transform group-hover:-translate-x-0.5" />
               Cockpit
             </Link>
 
@@ -109,7 +109,7 @@ export default function IntelligenceHub() {
                 className={`relative z-[1] rounded-full px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-300 ${
                   mode === 'research'
                     ? 'bg-gold/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_0_22px_rgba(196,163,90,0.18)]'
-                    : 'text-[#cec9c1] hover:bg-white/[0.05] hover:text-white'
+                    : 'text-[#cec9c1] hover:bg-teal/[0.06] hover:text-teal'
                 }`}
               >
                 Research
@@ -119,7 +119,7 @@ export default function IntelligenceHub() {
                 className={`relative z-[1] flex items-center gap-2 rounded-full px-4 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] transition-all duration-300 ${
                   mode === 'forge'
                     ? 'bg-gold/15 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.10),0_0_22px_rgba(196,163,90,0.18)]'
-                    : 'text-[#cec9c1] hover:bg-white/[0.05] hover:text-white'
+                    : 'text-[#cec9c1] hover:bg-teal/[0.06] hover:text-teal'
                 }`}
               >
                 <Sparkles size={11} className={mode === 'forge' ? 'text-gold' : ''} />
