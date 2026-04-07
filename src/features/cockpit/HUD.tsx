@@ -160,15 +160,24 @@ const HUD: React.FC<HUDProps> = ({ activeDivision = 'global', isSystemPaused = f
               </section>
 
               <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-20">
-                {division.kpis?.map((kpi, idx) => (
-                  <TelemetryCard 
-                    key={`${division.slug}-${kpi.key}-${idx}`} 
-                    label={kpi.label} 
-                    value={kpi.key === 'health' ? systemHealth.value : 'READ'} 
-                    trend={kpi.key === 'health' ? systemHealth.latency : undefined}
-                    status={kpi.key === 'health' ? systemHealth.status : 'nominal'}
-                  />
-                ))}
+                {division.kpis?.map((kpi, idx) => {
+                  // 'health' is the only live KPI right now — it reads from
+                  // the task ledger via systemHealth above. Every other KPI
+                  // falls back to the mock value/trend defined in DIVISIONS.
+                  // When real metrics wire through (Supabase task_ledger,
+                  // Stripe MRR, Upstash analytics, etc), branch them here
+                  // alongside health and keep the data shape on DivisionKpi.
+                  const isHealth = kpi.key === 'health';
+                  return (
+                    <TelemetryCard
+                      key={`${division.slug}-${kpi.key}-${idx}`}
+                      label={kpi.label}
+                      value={isHealth ? systemHealth.value : kpi.value}
+                      trend={isHealth ? systemHealth.latency : kpi.trend}
+                      status={isHealth ? systemHealth.status : kpi.status ?? 'nominal'}
+                    />
+                  );
+                })}
               </section>
 
               <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-20">
