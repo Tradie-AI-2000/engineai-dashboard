@@ -5,13 +5,13 @@
  * and assumptions. Pure LLM call with Zod-typed structured output. No web
  * search, no tools — Phase 1b adds the search MCP.
  *
- * Model: Claude Sonnet 4.6 via @ai-sdk/anthropic. Per-agent swap is one
- * line — change the import below.
+ * Model: resolved by src/lib/agents/model.ts. Provider-agnostic — flip
+ * LLM_PROVIDER + LLM_MODEL in .env.local to swap.
  */
 
 import { generateObject } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
+import { getModel } from './model';
 
 export const DiscoveryOutputSchema = z.object({
   findings: z
@@ -47,7 +47,7 @@ export async function runDiscoveryAgent(input: {
   divisionSlug: string;
 }): Promise<DiscoveryOutput> {
   const result = await generateObject({
-    model: anthropic('claude-sonnet-4-5'),
+    model: getModel(),
     schema: DiscoveryOutputSchema,
     system: SYSTEM_PROMPT,
     prompt: `Division: ${input.divisionSlug}\n\nBrief:\n${input.brief}`,

@@ -9,8 +9,8 @@
  */
 
 import { generateText } from 'ai';
-import { anthropic } from '@ai-sdk/anthropic';
 import type { DiscoveryOutput } from './discovery-agent';
+import { getModel } from './model';
 
 const SYSTEM_PROMPT = `You are the PRD agent for Engine AI's executive cockpit. \
 You receive the original founder brief, the division, and structured \
@@ -60,7 +60,7 @@ export async function runPrdAgent(input: {
   ].join('\n');
 
   const result = await generateText({
-    model: anthropic('claude-sonnet-4-5'),
+    model: getModel(),
     system: SYSTEM_PROMPT,
     prompt: userPrompt,
   });
