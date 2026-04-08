@@ -42,6 +42,13 @@ export async function runPrdAgent(input: {
   divisionSlug: string;
   discovery: DiscoveryOutput;
 }): Promise<string> {
+  // Failure-path test hook (Step 6 e2e). Set THROW_FOR_TEST=1 to force the
+  // PRD agent to throw mid-run so we can verify runs.status=failed and the
+  // cockpit surfaces the error cleanly. Never set in production.
+  if (process.env.THROW_FOR_TEST === '1') {
+    throw new Error('THROW_FOR_TEST: forced PRD agent failure for e2e test');
+  }
+
   const userPrompt = [
     `Project name: ${input.projectName}`,
     `Division: ${input.divisionSlug}`,
